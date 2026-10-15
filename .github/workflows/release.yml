@@ -29,8 +29,11 @@ jobs:
       - name: Test
         run: dotnet test Asteroids.Tests/Asteroids.Tests.csproj --no-restore
 
-      - name: Publish win-x64
+      - name: Publish win-x64 (lite, framework-dependent)
         run: dotnet publish Asteroids/Asteroids.csproj /p:PublishProfile=win-x64
+
+      - name: Publish win-x64-full (self-contained, bundles .NET)
+        run: dotnet publish Asteroids/Asteroids.csproj /p:PublishProfile=win-x64-full
 
       - name: Extract version
         id: ver
@@ -39,19 +42,36 @@ jobs:
           $v = "${{ github.ref_name }}" -replace '^v', ''
           echo "value=$v" >> $env:GITHUB_OUTPUT
 
-      - name: Build installer
+      - name: Build lite installer
         shell: pwsh
         run: |
           $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
           & $iscc /DAppVersion=${{ steps.ver.outputs.value }} installer\Asteroids.iss
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+      - name: Build full installer
+        shell: pwsh
+        run: |
+          $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+          & $iscc /DAppVersion=${{ steps.ver.outputs.value }} /DFull=1 installer\Asteroids.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Package portable zip (self-contained, no installer)
+        shell: pwsh
+        run: |
+          $v = "${{ steps.ver.outputs.value }}"
+          Compress-Archive -Path "Asteroids\publish\win-x64-full\*" `
+            -DestinationPath "installer\output\Asteroids_${v}_win-x64_portable.zip"
+
       - name: Create GitHub Release
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          $v = "${{ steps.ver.outputs.value }}"
           gh release create ${{ github.ref_name }} `
-            "installer/output/Asteroids_Setup_${{ steps.ver.outputs.value }}.exe" `
+            "installer/output/Asteroids_Setup_${v}_lite.exe" `
+            "installer/output/Asteroids_Setup_${v}_full.exe" `
+            "installer/output/Asteroids_${v}_win-x64_portable.zip" `
             --title "Asteroids ${{ github.ref_name }}" `
             --generate-notes

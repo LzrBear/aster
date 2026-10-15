@@ -1,12 +1,12 @@
 ; Asteroids – Inno Setup installer script
 ; Prerequisites:
 ;   1. Publish the game first:
-;        dotnet publish Asteroids\Asteroids.csproj /p:PublishProfile=win-x64
+;        dotnet publish Asteroids\Asteroids.csproj /p:PublishProfile=win-x64        (lite)
+;        dotnet publish Asteroids\Asteroids.csproj /p:PublishProfile=win-x64-full   (full)
 ;   2. Install Inno Setup 6 (https://jrsoftware.org/isdl.php)
-;   3. Compile this script with Inno Setup Compiler (ISCC.exe) or the IDE
-;
-; The game requires the .NET 9.0 Desktop Runtime (x64).
-; The installer checks for it and opens the download page if it is missing.
+;   3. Compile:
+;        ISCC.exe /DAppVersion=1.2.3             installer\Asteroids.iss         -> lite
+;        ISCC.exe /DAppVersion=1.2.3 /DFull=1   installer\Asteroids.iss         -> full (bundles .NET)
 
 #define AppName    "Asteroids"
 ; AppVersion can be overridden from the command line: ISCC.exe /DAppVersion=1.2.3
@@ -15,7 +15,14 @@
 #endif
 #define AppPublisher "Sameer Saini"
 #define AppExeName "Asteroids.exe"
-#define PublishDir "..\Asteroids\publish\win-x64"
+
+#ifdef Full
+  #define PublishDir "..\Asteroids\publish\win-x64-full"
+  #define InstallerSuffix "_full"
+#else
+  #define PublishDir "..\Asteroids\publish\win-x64"
+  #define InstallerSuffix "_lite"
+#endif
 
 [Setup]
 AppId={{A124715F-D524-483E-87F9-B9CD77A93ADD}
@@ -29,7 +36,7 @@ DefaultGroupName={#AppName}
 AllowNoIcons=yes
 LicenseFile=
 OutputDir=output
-OutputBaseFilename=Asteroids_Setup_{#AppVersion}
+OutputBaseFilename=Asteroids_Setup_{#AppVersion}{#InstallerSuffix}
 SetupIconFile=..\Asteroids\game.ico
 Compression=lzma2/ultra64
 SolidCompression=yes
@@ -37,9 +44,10 @@ WizardStyle=modern
 ArchitecturesInstallIn64BitMode=x64compatible
 ArchitecturesAllowed=x64compatible
 
+#ifndef Full
 [Code]
 // Check that .NET 9 Desktop Runtime (x64) is installed.
-// The key written by the .NET installer under HKLM looks like:
+// The .NET installer creates version subkeys under:
 //   SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedfx\Microsoft.WindowsDesktop.App\9.x.x
 function IsDotNet9DesktopInstalled: Boolean;
 var
@@ -49,7 +57,7 @@ var
 begin
   Result := False;
   KeyPath := 'SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedfx\Microsoft.WindowsDesktop.App';
-  if RegGetValueNames(HKLM64, KeyPath, Names) then
+  if RegGetSubkeyNames(HKLM64, KeyPath, Names) then
     for I := 0 to GetArrayLength(Names) - 1 do
       if Copy(Names[I], 1, 2) = '9.' then
       begin
@@ -74,6 +82,7 @@ begin
     Result := False;
   end;
 end;
+#endif
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
