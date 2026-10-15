@@ -88,6 +88,9 @@ jobs:
           v="${{ github.ref_name }}"
           echo "value=${v#v}" >> $GITHUB_OUTPUT
 
+      - name: Install native content-pipeline dependencies
+        run: brew install assimp freeimage
+
       - name: Publish osx-arm64
         run: dotnet publish Asteroids/Asteroids.GL.csproj /p:PublishProfile=osx-arm64
 
@@ -124,6 +127,9 @@ jobs:
         run: |
           v="${{ github.ref_name }}"
           echo "value=${v#v}" >> $GITHUB_OUTPUT
+
+      - name: Install native content-pipeline dependencies
+        run: sudo apt-get install -y libassimp-dev libfreeimage-dev
 
       - name: Publish linux-x64
         run: dotnet publish Asteroids/Asteroids.GL.csproj /p:PublishProfile=linux-x64
