@@ -89,7 +89,9 @@ jobs:
           echo "value=${v#v}" >> $GITHUB_OUTPUT
 
       - name: Install native content-pipeline dependencies
-        run: brew install assimp freeimage
+        run: |
+          brew install assimp freeimage
+          echo "DYLD_LIBRARY_PATH=$(brew --prefix)/lib:$DYLD_LIBRARY_PATH" >> $GITHUB_ENV
 
       - name: Publish osx-arm64
         run: dotnet publish Asteroids/Asteroids.GL.csproj /p:PublishProfile=osx-arm64
