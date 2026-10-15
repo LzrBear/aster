@@ -29,6 +29,17 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
+      - name: Build DesktopGL content on Windows
+        run: dotnet build Asteroids/Asteroids.GL.csproj -c Release
+
+      - name: Upload pre-built DesktopGL content
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktopgl-content
+          path: |
+            AsteroidsContent/bin/DesktopGL/
+            AsteroidsContent/obj/DesktopGL/
+
       - name: Publish win-x64 lite (framework-dependent)
         run: dotnet publish Asteroids/Asteroids.csproj /p:PublishProfile=win-x64
 
@@ -74,7 +85,7 @@ jobs:
 
   # ── macOS artifacts ─────────────────────────────────────────────────────────
   build-macos:
-    needs: test
+    needs: [test, build-windows]
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -88,10 +99,11 @@ jobs:
           v="${{ github.ref_name }}"
           echo "value=${v#v}" >> $GITHUB_OUTPUT
 
-      - name: Install native content-pipeline dependencies
-        run: |
-          brew install assimp freeimage
-          echo "DYLD_LIBRARY_PATH=$(brew --prefix)/lib:$DYLD_LIBRARY_PATH" >> $GITHUB_ENV
+      - name: Download pre-built DesktopGL content
+        uses: actions/download-artifact@v4
+        with:
+          name: desktopgl-content
+          path: AsteroidsContent/
 
       - name: Publish osx-arm64
         run: dotnet publish Asteroids/Asteroids.GL.csproj /p:PublishProfile=osx-arm64
@@ -116,7 +128,7 @@ jobs:
 
   # ── Linux artifacts ──────────────────────────────────────────────────────────
   build-linux:
-    needs: test
+    needs: [test, build-windows]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -130,8 +142,11 @@ jobs:
           v="${{ github.ref_name }}"
           echo "value=${v#v}" >> $GITHUB_OUTPUT
 
-      - name: Install native content-pipeline dependencies
-        run: sudo apt-get install -y libassimp-dev libfreeimage-dev
+      - name: Download pre-built DesktopGL content
+        uses: actions/download-artifact@v4
+        with:
+          name: desktopgl-content
+          path: AsteroidsContent/
 
       - name: Publish linux-x64
         run: dotnet publish Asteroids/Asteroids.GL.csproj /p:PublishProfile=linux-x64
