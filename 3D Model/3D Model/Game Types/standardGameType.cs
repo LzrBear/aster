@@ -477,34 +477,42 @@ namespace Asteroids.Game_Types
                     {
                         tmpPos = (asteroidList[i].position + asteroidList[j].position) / 2;
 
-                        //After a collision reverse the rotation
+                        // Reverse spin on collision (visual only)
                         asteroidList[i].rotation *= -1;
                         asteroidList[j].rotation *= -1;
 
-                        //Determine the new direction for the asteroids
-                        Vector3 Vni = new Vector3();
-                        Vector3 Vnpi = new Vector3();
+                        // Elastic collision: conserve momentum and kinetic energy.
+                        // Mass is proportional to visual scale so large asteroids
+                        // have more inertia and deflect smaller ones more strongly.
+                        Vector3 vi = asteroidList[i].direction * asteroidList[i].speed;
+                        Vector3 vj = asteroidList[j].direction * asteroidList[j].speed;
+                        float   mi = AsteroidScale(asteroidList[i].Size);
+                        float   mj = AsteroidScale(asteroidList[j].Size);
 
-                        Vector3 Vnj = new Vector3();
-                        Vector3 Vnpj = new Vector3();
+                        // Unit normal pointing from i toward j along the collision axis
+                        Vector3 collNormal = asteroidList[j].position - asteroidList[i].position;
+                        float   separation = collNormal.Length();
+                        collNormal = (separation > 0f) ? collNormal / separation : Vector3.UnitX;
 
-                        //Determmine the normal vector for i
-                        Vni = asteroidList[j].position - asteroidList[i].position;
-                        Vni.Normalize();
-                        Vnpi = asteroidList[i].direction - Vni;
-                        Vnpi.Normalize();
+                        // Only resolve if the asteroids are still approaching
+                        float relVn = Vector3.Dot(vi - vj, collNormal);
+                        if (relVn > 0f)
+                        {
+                            float impulse = 2f * mi * mj / (mi + mj) * relVn;
+                            vi -= (impulse / mi) * collNormal;
+                            vj += (impulse / mj) * collNormal;
 
-                        asteroidList[i].direction = -Vni + Vnpi;
-                        asteroidList[i].direction.Normalize();
+                            vi.Z = 0f; vj.Z = 0f; // keep motion in the XY plane
 
-                        //Determine the normal vector for j
-                        Vnj = asteroidList[i].position - asteroidList[j].position;
-                        Vnj.Normalize();
-                        Vnpj = asteroidList[j].direction - Vnj;
-                        Vnpj.Normalize();
+                            float newSpeedI = vi.Length();
+                            float newSpeedJ = vj.Length();
 
-                        asteroidList[j].direction = -Vnj + Vnpj;
-                        asteroidList[j].direction.Normalize();
+                            asteroidList[i].speed = Math.Max(GameConstants.AsteroidMinSpeed, newSpeedI);
+                            asteroidList[j].speed = Math.Max(GameConstants.AsteroidMinSpeed, newSpeedJ);
+
+                            if (newSpeedI > 0f) asteroidList[i].direction = vi / newSpeedI;
+                            if (newSpeedJ > 0f) asteroidList[j].direction = vj / newSpeedJ;
+                        }
 
                         dist = GameConstants.ExplosionDistanceFactor / (float)Math.Sqrt((tmpPos.X * tmpPos.X) + (tmpPos.Y * tmpPos.Y));
                         if (asteroidList[i].position.X < visibleHalfX &&
