@@ -4,6 +4,9 @@
 ;        dotnet publish Asteroids\Asteroids.csproj /p:PublishProfile=win-x64
 ;   2. Install Inno Setup 6 (https://jrsoftware.org/isdl.php)
 ;   3. Compile this script with Inno Setup Compiler (ISCC.exe) or the IDE
+;
+; The game requires the .NET 9.0 Desktop Runtime (x64).
+; The installer checks for it and opens the download page if it is missing.
 
 #define AppName    "Asteroids"
 ; AppVersion can be overridden from the command line: ISCC.exe /DAppVersion=1.2.3
@@ -33,6 +36,42 @@ SolidCompression=yes
 WizardStyle=modern
 ArchitecturesInstallIn64BitMode=x64compatible
 ArchitecturesAllowed=x64compatible
+
+[Code]
+// Check that .NET 9 Desktop Runtime (x64) is installed.
+// The key written by the .NET installer under HKLM looks like:
+//   SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedfx\Microsoft.WindowsDesktop.App\9.x.x
+function IsDotNet9DesktopInstalled: Boolean;
+var
+  KeyPath: String;
+  Names: TArrayOfString;
+  I: Integer;
+begin
+  Result := False;
+  KeyPath := 'SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedfx\Microsoft.WindowsDesktop.App';
+  if RegGetValueNames(HKLM64, KeyPath, Names) then
+    for I := 0 to GetArrayLength(Names) - 1 do
+      if Copy(Names[I], 1, 2) = '9.' then
+      begin
+        Result := True;
+        Exit;
+      end;
+end;
+
+function InitializeSetup: Boolean;
+begin
+  Result := True;
+  if not IsDotNet9DesktopInstalled then
+  begin
+    if MsgBox(
+      'Asteroids requires the .NET 9.0 Desktop Runtime (x64).' + #13#10 +
+      'It does not appear to be installed.' + #13#10#13#10 +
+      'Click OK to open the .NET download page, then re-run this installer.',
+      mbInformation, MB_OKCANCEL) = IDOK then
+      ShellExec('open', 'https://aka.ms/dotnet/9.0/windowsdesktop-runtime-win-x64.exe', '', '', SW_SHOW, ewNoWait, 0);
+    Result := False;
+  end;
+end;
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
