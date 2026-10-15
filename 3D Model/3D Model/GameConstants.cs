@@ -44,5 +44,12 @@ namespace Asteroids
         public const int KillBonus = 25;
 
         public const int numStars = 10;
+
+        // Volume levels (0.0 = silent, 1.0 = full)
+        public const float MusicVolume = 0.4f;
+        public const float EngineVolume = 0.25f;
+        public const float ExplosionVolume = 0.5f;
+        public const float WeaponVolume = 0.45f;
+        public const float HyperspaceVolume = 0.4f;
     }
 }

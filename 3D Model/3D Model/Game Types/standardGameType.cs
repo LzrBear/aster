@@ -252,7 +252,7 @@ namespace Asteroids.Game_Types
                 if (asteroidList[i].bounds.Intersects(shipSphere) && ship.isActive)
                 {
                     //blow up the ship
-                    soundExplosion3.Play();
+                    soundExplosion3.Play(GameConstants.ExplosionVolume, 0f, 0f);
                     particleEffect.UpdateExplosion(ship.Position);
                     ship.isActive = false;
                     ship.Position = Vector3.Zero;
@@ -274,7 +274,7 @@ namespace Asteroids.Game_Types
                                 (bulletList[j].position.Y * bulletList[j].position.Y));
 
                             if (dist < 1.0f)
-                                soundExplosion1.Play(dist, 0.2f, 0.3f);
+                                soundExplosion1.Play(dist * GameConstants.ExplosionVolume, 0.2f, 0.3f);
 
                             particleEffect.UpdateExplosion(asteroidList[i].position);
 
@@ -336,7 +336,7 @@ namespace Asteroids.Game_Types
                         {
                             particleEffect.UpdateSmoke(tmpPos);
                             if (dist < 1.0f)
-                                soundExplosion2.Play(dist, 0.0f, 0.0f);
+                                soundExplosion2.Play(dist * GameConstants.ExplosionVolume, 0.0f, 0.0f);
                         }
 
                         break; //no need to check against other asteroids
@@ -363,7 +363,7 @@ namespace Asteroids.Game_Types
 
                     if (soundEngineInstance.State == SoundState.Stopped)
                     {
-                        soundEngineInstance.Volume = 0.99f;
+                        soundEngineInstance.Volume = GameConstants.EngineVolume;
                         soundEngineInstance.IsLooped = true;
                         soundEngineInstance.Play();
                     }
@@ -393,7 +393,7 @@ namespace Asteroids.Game_Types
                                     (ship.Velocity.Z * ship.Velocity.Z));
                             bulletList[i].position = ship.Position + (1000 * bulletList[i].direction);
                             bulletList[i].isActive = true;
-                            soundWeaponsFire.Play();
+                            soundWeaponsFire.Play(GameConstants.WeaponVolume, 0f, 0f);
                             score -= GameConstants.ShotPenalty;
                             break; //exit loop
                         }
@@ -413,7 +413,7 @@ namespace Asteroids.Game_Types
                 ship.Position = Vector3.Zero;
                 ship.Velocity = Vector3.Zero;
                 ship.Rotation = 0.0f;
-                soundHyperspaceActivation.Play();
+                soundHyperspaceActivation.Play(GameConstants.HyperspaceVolume, 0f, 0f);
                 score -= GameConstants.WarpPenalty;
                 ship.isActive = true;
             }
@@ -517,7 +517,7 @@ namespace Asteroids.Game_Types
                 if (asteroidList[i].bounds.Intersects(shipSphere) && ship.isActive)
                 {
                     //blow up the ship
-                    soundExplosion3.Play();
+                    soundExplosion3.Play(GameConstants.ExplosionVolume, 0f, 0f);
                     UpdateExplosion(ship.Position);
                     ship.isActive = false;
                     ship.lives--;
@@ -538,7 +538,7 @@ namespace Asteroids.Game_Types
                                 (bulletList[j].position.Y * bulletList[j].position.Y));
 
                             if (dist < 1.0f)
-                                soundExplosion1.Play(dist, 0.2f, 0.3f);
+                                soundExplosion1.Play(dist * GameConstants.ExplosionVolume, 0.2f, 0.3f);
 
                             UpdateExplosion(asteroidList[i].position);
 
@@ -600,7 +600,7 @@ namespace Asteroids.Game_Types
                         {
                             UpdateSmoke(tmpPos);
                             if (dist < 1.0f)
-                                soundExplosion2.Play(dist, 0.0f, 0.0f);
+                                soundExplosion2.Play(dist * GameConstants.ExplosionVolume, 0.0f, 0.0f);
                         }
 
                         break; //no need to check against other asteroids
@@ -665,7 +665,7 @@ namespace Asteroids.Game_Types
                 if (asteroidList[i].bounds.Intersects(shipSphere) && ship.isActive)
                 {
                     //blow up the ship
-                    soundExplosion3.Play();
+                    soundExplosion3.Play(GameConstants.ExplosionVolume, 0f, 0f);
                     UpdateExplosion(ship.Position);
                     ship.isActive = false;
                     ship.lives--;
@@ -686,7 +686,7 @@ namespace Asteroids.Game_Types
                                 (bulletList[j].position.Y * bulletList[j].position.Y));
 
                             if (dist < 1.0f)
-                                soundExplosion1.Play(dist, 0.2f, 0.3f);
+                                soundExplosion1.Play(dist * GameConstants.ExplosionVolume, 0.2f, 0.3f);
 
                             UpdateExplosion(asteroidList[i].position);
 
@@ -748,7 +748,7 @@ namespace Asteroids.Game_Types
                         {
                             UpdateSmoke(tmpPos);
                             if (dist < 1.0f)
-                                soundExplosion2.Play(dist, 0.0f, 0.0f);
+                                soundExplosion2.Play(dist * GameConstants.ExplosionVolume, 0.0f, 0.0f);
                         }
 
                         break; //no need to check against other asteroids

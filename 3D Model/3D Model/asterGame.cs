@@ -110,7 +110,7 @@ namespace Asteroids
             //temporary solution to playing music
             //needs to be moved later so that we can change the music according to whats on screen
             //i.e. music feel in accordance to whats being displayed
-            MediaPlayer.Volume = 0.1f;
+            MediaPlayer.Volume = GameConstants.MusicVolume;
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Play(Music_default);
         }
