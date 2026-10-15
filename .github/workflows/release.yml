@@ -179,6 +179,7 @@ jobs:
         with:
           path: dist
           merge-multiple: true
+          pattern: '{windows,macos,linux}'
 
       - name: Delete existing release if present
         env:
