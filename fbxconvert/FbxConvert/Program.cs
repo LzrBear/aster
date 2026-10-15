@@ -8,9 +8,9 @@ using System.Text.RegularExpressions;
 // ASCII FBX 6.0 → DirectX .x converter (one mesh, flat normals)
 
 var fbxPath = args.Length > 0 ? args[0]
-    : @"C:\Users\Sameer Saini\Desktop\aster\3D Model\3D ModelContent\Models\p1_wedge.fbx";
+    : @"C:\Users\Sameer Saini\Desktop\aster\AsteroidsContent\Models\p1_wedge.fbx";
 var xPath = args.Length > 1 ? args[1]
-    : @"C:\Users\Sameer Saini\Desktop\aster\3D Model\3D ModelContent\Models\p1_wedge.x";
+    : @"C:\Users\Sameer Saini\Desktop\aster\AsteroidsContent\Models\p1_wedge.x";
 
 Console.WriteLine($"Reading {fbxPath}");
 string raw = File.ReadAllText(fbxPath);

@@ -24,13 +24,13 @@ jobs:
         run: dotnet restore Asteroids.sln
 
       - name: Build
-        run: dotnet build "3D Model/3D Model/Asteroids.csproj" -c Release --no-restore
+        run: dotnet build Asteroids/Asteroids.csproj -c Release --no-restore
 
       - name: Test
         run: dotnet test Asteroids.Tests/Asteroids.Tests.csproj --no-restore
 
       - name: Publish win-x64
-        run: dotnet publish "3D Model/3D Model/Asteroids.csproj" /p:PublishProfile=win-x64 --no-restore
+        run: dotnet publish Asteroids/Asteroids.csproj /p:PublishProfile=win-x64 --no-restore
 
       - name: Extract version
         id: ver

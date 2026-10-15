@@ -44,7 +44,7 @@ A 3D Asteroids game built with MonoGame 3.8.1 / .NET 9, migrated from the origin
 ## Building & Running
 
 ```bash
-cd "3D Model/3D Model"
+cd Asteroids
 dotnet run --project Asteroids.csproj
 ```
 
@@ -62,7 +62,7 @@ dotnet test Asteroids.Tests/Asteroids.Tests.csproj
 
 1. Publish a self-contained win-x64 build:
    ```bash
-   dotnet publish "3D Model/3D Model/Asteroids.csproj" /p:PublishProfile=win-x64
+   dotnet publish Asteroids/Asteroids.csproj /p:PublishProfile=win-x64
    ```
 2. Install [Inno Setup 6](https://jrsoftware.org/isdl.php) and compile `installer/Asteroids.iss`. The installer packages the publish output into a standard Windows setup wizard.
 
@@ -70,9 +70,8 @@ dotnet test Asteroids.Tests/Asteroids.Tests.csproj
 
 ```
 .github/workflows/   # GitHub Actions CI (build + test on every push/PR)
-3D Model/
-  3D Model/          # Game source (.cs), publish profiles
-  3D ModelContent/   # Game assets (models, textures, audio, shaders)
+Asteroids/           # Game source (.cs), publish profiles
+AsteroidsContent/    # Game assets (models, textures, audio, shaders)
 Asteroids.Tests/     # xUnit test project
 fbxconvert/          # Utility: FBX 6.0 → DirectX .x format
 installer/           # Inno Setup script for the Windows installer

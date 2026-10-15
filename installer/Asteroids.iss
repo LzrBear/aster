@@ -1,7 +1,7 @@
 ; Asteroids – Inno Setup installer script
 ; Prerequisites:
 ;   1. Publish the game first:
-;        dotnet publish "3D Model\3D Model\Asteroids.csproj" /p:PublishProfile=win-x64
+;        dotnet publish Asteroids\Asteroids.csproj /p:PublishProfile=win-x64
 ;   2. Install Inno Setup 6 (https://jrsoftware.org/isdl.php)
 ;   3. Compile this script with Inno Setup Compiler (ISCC.exe) or the IDE
 
@@ -12,7 +12,7 @@
 #endif
 #define AppPublisher "Sameer Saini"
 #define AppExeName "Asteroids.exe"
-#define PublishDir "..\3D Model\3D Model\publish\win-x64"
+#define PublishDir "..\Asteroids\publish\win-x64"
 
 [Setup]
 AppId={{A124715F-D524-483E-87F9-B9CD77A93ADD}
@@ -27,7 +27,7 @@ AllowNoIcons=yes
 LicenseFile=
 OutputDir=output
 OutputBaseFilename=Asteroids_Setup_{#AppVersion}
-SetupIconFile=..\3D Model\3D Model\game.ico
+SetupIconFile=..\Asteroids\game.ico
 Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern

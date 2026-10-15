@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Asteroids")]
-[assembly: AssemblyProduct("3D Model")]
+[assembly: AssemblyProduct("Asteroids")]
 [assembly: AssemblyDescription("MEOW!")]
 [assembly: AssemblyCompany("LzrBear Inc.")]
 [assembly: AssemblyCopyright("Copyright © LzrBear Inc. 2011")]

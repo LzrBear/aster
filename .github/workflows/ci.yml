@@ -23,7 +23,7 @@ jobs:
         run: dotnet restore Asteroids.sln
 
       - name: Build
-        run: dotnet build "3D Model/3D Model/Asteroids.csproj" -c Release --no-restore
+        run: dotnet build Asteroids/Asteroids.csproj -c Release --no-restore
 
       - name: Test
         run: dotnet test Asteroids.Tests/Asteroids.Tests.csproj --no-restore --logger "console;verbosity=normal"

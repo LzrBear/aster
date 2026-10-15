@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <MonoGameContentReference Include="..\3D ModelContent\Content.mgcb" />
+    <MonoGameContentReference Include="..\AsteroidsContent\Content.mgcb" />
   </ItemGroup>
 
 </Project>

@@ -138,7 +138,7 @@ namespace Asteroids
         public const int numStars = 10;
 
         // ── Content paths ─────────────────────────────────────────────────────
-        public const string ContentRoot    = "3D ModelContent";
+        public const string ContentRoot    = "AsteroidsContent";
         public const string FontMain       = "Fonts/Lucida Console";
         public const string TextureStars   = "Textures/B1_stars";
         public const string ModelShip      = "Models/p1_wedge";

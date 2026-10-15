@@ -21,7 +21,7 @@ When adding a new feature, add its constants to the appropriate section in
 Always run both of the following from the repo root and confirm both pass
 before committing. Do not commit code that fails either check.
 
-1. **Build** – run `dotnet build` from `3D Model/3D Model/` and confirm it
+1. **Build** – run `dotnet build` from `Asteroids/` and confirm it
    reports **0 errors**.
 
 2. **Unit tests** – run `dotnet test Asteroids.Tests/Asteroids.Tests.csproj`
