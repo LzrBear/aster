@@ -112,36 +112,36 @@ namespace Asteroids.Game_Types
             }
 
             //Load the fonts
-            kootenay = game.Content.Load<SpriteFont>("Fonts/Lucida Console");
-            _spaceWidth  = kootenay.MeasureString("M").X * 0.5f;
+            kootenay = game.Content.Load<SpriteFont>(GameConstants.FontMain);
+            _spaceWidth  = kootenay.MeasureString("M").X * GameConstants.FontSpaceWidthScale;
             livesPosition = new Vector2(100, scorePosition.Y + kootenay.LineSpacing);
 
             //Initialize the particle Effects
             particleEffect.initialize(game);
 
             //Initialize the models
-            ship.Model = game.Content.Load<Model>("Models/p1_wedge");
+            ship.Model = game.Content.Load<Model>(GameConstants.ModelShip);
             ship.Transforms = SetupEffectDefaults(ship.Model, projectionMatrix, viewMatrix);
 
-            asteroidModel = game.Content.Load<Model>("Models/asteroid1");
+            asteroidModel = game.Content.Load<Model>(GameConstants.ModelAsteroid);
             asteroidTransforms = SetupEffectDefaults(asteroidModel, projectionMatrix, viewMatrix);
 
-            bulletModel = game.Content.Load<Model>("Models/pea_proj");
+            bulletModel = game.Content.Load<Model>(GameConstants.ModelBullet);
             bulletTransforms = SetupEffectDefaults(bulletModel, projectionMatrix, viewMatrix);
 
             //Initialize the Sound Effects
-            soundEngine = game.Content.Load<SoundEffect>("Audio/Waves/engine_2");
+            soundEngine = game.Content.Load<SoundEffect>(GameConstants.SfxEngine);
             soundEngineInstance = soundEngine.CreateInstance();
             soundHyperspaceActivation =
-                game.Content.Load<SoundEffect>("Audio/Waves/hyperspace_activate");
+                game.Content.Load<SoundEffect>(GameConstants.SfxHyperspace);
             soundExplosion1 =
-                game.Content.Load<SoundEffect>("Audio/Waves/explosion1");
+                game.Content.Load<SoundEffect>(GameConstants.SfxExplosion1);
             soundExplosion2 =
-                game.Content.Load<SoundEffect>("Audio/Waves/explosion2");
+                game.Content.Load<SoundEffect>(GameConstants.SfxExplosion2);
             soundExplosion3 =
-                game.Content.Load<SoundEffect>("Audio/Waves/explosion3");
+                game.Content.Load<SoundEffect>(GameConstants.SfxExplosion3);
             soundWeaponsFire =
-                game.Content.Load<SoundEffect>("Audio/Waves/tx0_fire1");
+                game.Content.Load<SoundEffect>(GameConstants.SfxWeaponFire);
 
         }
 
@@ -226,7 +226,7 @@ namespace Asteroids.Game_Types
 
             // Rotate the inward normal by a random spread of ±60° so asteroids approach
             // at various angles but always move toward the center of the playfield.
-            float spread = (float)((random.NextDouble() * 2 - 1) * Math.PI / 3);
+            float spread = (float)((random.NextDouble() * 2 - 1) * MathHelper.PiOver3);
             Vector3 dir = Vector3.Transform(inward, Matrix.CreateRotationZ(spread));
             asteroidList[i].direction.X = dir.X;
             asteroidList[i].direction.Y = dir.Y;
@@ -328,7 +328,7 @@ namespace Asteroids.Game_Types
             // Offset each fragment along its own direction so they don't start at the same
             // position — identical positions cause a zero-length normal on the next collision
             // check, Normalize() returns NaN, and all positions go NaN.
-            const float separation = 2000f;
+            float separation = GameConstants.AsteroidSplitSeparation;
             initSplitAsteroid(i, pos + dir1 * separation, dir1, nextSize);
 
             // Find a free slot for the second fragment
@@ -366,7 +366,7 @@ namespace Asteroids.Game_Types
             ship.Position += ship.Velocity;
 
             // Bleed off velocity over time
-            ship.Velocity *= 0.99f;
+            ship.Velocity *= GameConstants.VelocityDamping;
 
             //Create a bounding sphere around the ship
             BoundingSphere shipSphere = new BoundingSphere(
@@ -427,10 +427,10 @@ namespace Asteroids.Game_Types
                     {
                         if (asteroidList[i].bounds.Intersects(bulletList[j].bounds))
                         {
-                            dist = 2000 / (float)Math.Sqrt((bulletList[j].position.X * bulletList[j].position.X) +
+                            dist = GameConstants.ExplosionDistanceFactor / (float)Math.Sqrt((bulletList[j].position.X * bulletList[j].position.X) +
                                 (bulletList[j].position.Y * bulletList[j].position.Y));
 
-                            if (dist < 1.0f)
+                            if (dist < GameConstants.ExplosionSoundThreshold)
                                 soundExplosion1.Play(dist * GameConstants.ExplosionVolume, 0.2f, 0.3f);
 
                             particleEffect.UpdateExplosion(asteroidList[i].position);
@@ -480,14 +480,14 @@ namespace Asteroids.Game_Types
                         asteroidList[j].direction = -Vnj + Vnpj;
                         asteroidList[j].direction.Normalize();
 
-                        dist = 2000 / (float)Math.Sqrt((tmpPos.X * tmpPos.X) + (tmpPos.Y * tmpPos.Y));
+                        dist = GameConstants.ExplosionDistanceFactor / (float)Math.Sqrt((tmpPos.X * tmpPos.X) + (tmpPos.Y * tmpPos.Y));
                         if (asteroidList[i].position.X < visibleHalfX &&
                             asteroidList[i].position.X > -visibleHalfX &&
                             asteroidList[i].position.Y < visibleHalfY &&
                             asteroidList[i].position.Y > -visibleHalfY)
                         {
                             particleEffect.UpdateSmoke(tmpPos);
-                            if (dist < 1.0f)
+                            if (dist < GameConstants.ExplosionSoundThreshold)
                                 soundExplosion2.Play(dist * GameConstants.ExplosionVolume, 0.0f, 0.0f);
                         }
 
@@ -547,7 +547,7 @@ namespace Asteroids.Game_Types
                                 (float)Math.Sqrt((ship.Velocity.X * ship.Velocity.X) +
                                     (ship.Velocity.Y * ship.Velocity.Y) +
                                     (ship.Velocity.Z * ship.Velocity.Z));
-                            bulletList[i].position = ship.Position + (1000 * bulletList[i].direction);
+                            bulletList[i].position = ship.Position + (GameConstants.BulletSpawnOffset * bulletList[i].direction);
                             bulletList[i].isActive = true;
                             soundWeaponsFire.Play(GameConstants.WeaponVolume, 0f, 0f);
                             score = Math.Max(0, score - GameConstants.ShotPenalty);
@@ -572,7 +572,7 @@ namespace Asteroids.Game_Types
                 soundHyperspaceActivation.Play(GameConstants.HyperspaceVolume, 0f, 0f);
                 score = Math.Max(0, score - GameConstants.WarpPenalty);
                 ship.isActive = true;
-                respawnInvincibleTimer = 3.0f;
+                respawnInvincibleTimer = GameConstants.RespawnInvincibilityDuration;
             }
 
             lastGState = currentGamePadSate;
@@ -636,7 +636,7 @@ namespace Asteroids.Game_Types
                 * Matrix.CreateTranslation(ship.Position);
 
             bool shipVisible = ship.isActive &&
-                (respawnInvincibleTimer <= 0f || (int)(respawnInvincibleTimer * 8) % 2 == 0);
+                (respawnInvincibleTimer <= 0f || (int)(respawnInvincibleTimer * GameConstants.RespawnFlashRate) % 2 == 0);
             if (shipVisible)
                 DrawModel(ship.Model, shipTransformMatrix, ship.Transforms);
 
@@ -680,13 +680,13 @@ namespace Asteroids.Game_Types
         public void drawHUD()
         {
             spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.AnisotropicClamp);
-            DrawSpHud("Score: " + score, scorePosition, Color.LightGreen);
-            DrawSpHud("Lives: " + ship.lives, livesPosition, Color.LightGreen);
+            DrawSpHud(GameConstants.UiHudScore + score, scorePosition, Color.LightGreen);
+            DrawSpHud(GameConstants.UiHudLives + ship.lives, livesPosition, Color.LightGreen);
 
             if (!ship.isActive && ship.lives > 0)
             {
-                DrawHudCentered("SHIP DESTROYED", 255f, Color.Red, 1.5f);
-                DrawHudCentered("Press HOME to respawn", 300f, Color.White);
+                DrawHudCentered(GameConstants.UiHudShipDestroyed, 255f, Color.Red, GameConstants.UiSubtitleScale);
+                DrawHudCentered(GameConstants.UiHudRespawn, 300f, Color.White);
             }
             spriteBatch.End();
         }

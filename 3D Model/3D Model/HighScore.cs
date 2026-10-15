@@ -13,9 +13,7 @@ namespace Asteroids
 
     class HighScoreManager
     {
-        private const int MaxEntries = 10;
-        private const string FileName = "highscores.txt";
-        private string FilePath => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, FileName);
+        private string FilePath => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, GameConstants.HighScoresFile);
 
         public List<HighScoreEntry> Entries { get; private set; } = new List<HighScoreEntry>();
 
@@ -27,7 +25,7 @@ namespace Asteroids
             if (!File.Exists(FilePath)) return;
             foreach (string line in File.ReadAllLines(FilePath))
             {
-                int sep = line.LastIndexOf('|');
+                int sep = line.LastIndexOf(GameConstants.HighScoreSeparator);
                 if (sep < 0) continue;
                 string name = line.Substring(0, sep);
                 if (int.TryParse(line.Substring(sep + 1), out int score))
@@ -39,21 +37,21 @@ namespace Asteroids
         {
             var lines = new List<string>();
             foreach (var e in Entries)
-                lines.Add(e.Name + "|" + e.Score);
+                lines.Add(e.Name + GameConstants.HighScoreSeparator + e.Score);
             File.WriteAllLines(FilePath, lines);
         }
 
         public bool IsHighScore(int score)
         {
-            return Entries.Count < MaxEntries || score > Entries[Entries.Count - 1].Score;
+            return Entries.Count < GameConstants.MaxHighScores || score > Entries[Entries.Count - 1].Score;
         }
 
         public void AddEntry(string name, int score)
         {
             Entries.Add(new HighScoreEntry(name, score));
             Entries.Sort((a, b) => b.Score.CompareTo(a.Score));
-            if (Entries.Count > MaxEntries)
-                Entries.RemoveRange(MaxEntries, Entries.Count - MaxEntries);
+            if (Entries.Count > GameConstants.MaxHighScores)
+                Entries.RemoveRange(GameConstants.MaxHighScores, Entries.Count - GameConstants.MaxHighScores);
             Save();
         }
     }

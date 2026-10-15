@@ -51,9 +51,9 @@ namespace Asteroids
         {
             graphics = new GraphicsDeviceManager(this);
             graphics.PreferMultiSampling = true;
-            graphics.PreferredBackBufferWidth  = 1280;
-            graphics.PreferredBackBufferHeight = 720;
-            Content.RootDirectory = "3D ModelContent";
+            graphics.PreferredBackBufferWidth  = GameConstants.WindowWidth;
+            graphics.PreferredBackBufferHeight = GameConstants.WindowHeight;
+            Content.RootDirectory = GameConstants.ContentRoot;
             particleEffect.initialize(this);
         }
 
@@ -63,10 +63,10 @@ namespace Asteroids
             Window.ClientSizeChanged += OnResize;
 
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(
-                MathHelper.ToRadians(45.0f),
+                MathHelper.ToRadians(GameConstants.CameraFov),
                 (float)GraphicsDevice.Viewport.Width / GraphicsDevice.Viewport.Height,
-                GameConstants.CameraHeight - 2000.0f,
-                GameConstants.CameraHeight + 2000.0f);
+                GameConstants.CameraHeight - GameConstants.CameraClipMargin,
+                GameConstants.CameraHeight + GameConstants.CameraClipMargin);
             viewMatrix = Matrix.CreateLookAt(cameraPosition, Vector3.Zero, Vector3.Up);
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -81,10 +81,10 @@ namespace Asteroids
             if (w == 0 || h == 0) return;
 
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(
-                MathHelper.ToRadians(45.0f),
+                MathHelper.ToRadians(GameConstants.CameraFov),
                 (float)w / h,
-                GameConstants.CameraHeight - 2000.0f,
-                GameConstants.CameraHeight + 2000.0f);
+                GameConstants.CameraHeight - GameConstants.CameraClipMargin,
+                GameConstants.CameraHeight + GameConstants.CameraClipMargin);
 
             if (stand.HasInitialized)
                 stand.UpdateProjection(projectionMatrix, viewMatrix);
@@ -92,13 +92,13 @@ namespace Asteroids
 
         protected override void LoadContent()
         {
-            stars      = Content.Load<Texture2D>("Textures/B1_stars");
-            menuFont    = Content.Load<SpriteFont>("Fonts/Lucida Console");
+            stars    = Content.Load<Texture2D>(GameConstants.TextureStars);
+            menuFont = Content.Load<SpriteFont>(GameConstants.FontMain);
             // MonoGame pipeline gives the space glyph zero advance (empty bounding box).
             // We measure it ourselves and use DrawSp/MeasureSp for any text with spaces.
-            _spaceWidth = menuFont.MeasureString("M").X * 0.5f;
+            _spaceWidth = menuFont.MeasureString("M").X * GameConstants.FontSpaceWidthScale;
 
-            Music_default = Content.Load<Song>("Audio/Music/Hyper Space");
+            Music_default = Content.Load<Song>(GameConstants.MusicDefault);
             MediaPlayer.Volume     = GameConstants.MusicVolume;
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Play(Music_default);
@@ -119,7 +119,7 @@ namespace Asteroids
                 {
                     if (i > segStart)
                         w += menuFont.MeasureString(text.Substring(segStart, i - segStart)).X;
-                    if (i < text.Length)   // it's a space
+                    if (i < text.Length)
                         w += _spaceWidth;
                     segStart = i + 1;
                 }
@@ -143,7 +143,7 @@ namespace Asteroids
                             0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
                         curX += menuFont.MeasureString(seg).X * scale;
                     }
-                    if (i < text.Length)   // it's a space
+                    if (i < text.Length)
                         curX += _spaceWidth * scale;
                     segStart = i + 1;
                 }
@@ -190,10 +190,10 @@ namespace Asteroids
             }
 
             if (PressedKey(ks, Keys.Up) || PressedBtn(gs, Buttons.DPadUp))
-                menuIndex = (menuIndex + 2) % 3; // wrap up
+                menuIndex = (menuIndex + 2) % 3;
 
             if (PressedKey(ks, Keys.Down) || PressedBtn(gs, Buttons.DPadDown))
-                menuIndex = (menuIndex + 1) % 3; // wrap down
+                menuIndex = (menuIndex + 1) % 3;
 
             if (PressedKey(ks, Keys.Enter) || PressedKey(ks, Keys.Space) || PressedBtn(gs, Buttons.A))
             {
@@ -230,7 +230,6 @@ namespace Asteroids
 
         void UpdateGameOver(GameTime gameTime, KeyboardState ks, GamePadState gs)
         {
-            // Keep the game world ticking for background animation
             if (stand.HasInitialized)
                 stand.RunGame(this, gameTime, GraphicsDevice, projectionMatrix, viewMatrix);
 
@@ -268,7 +267,7 @@ namespace Asteroids
             {
                 Window.TextInput -= HandleTextInput;
                 string name = playerName.ToString().Trim();
-                if (name.Length == 0) name = "???";
+                if (name.Length == 0) name = GameConstants.DefaultPlayerName;
                 highScoreManager.AddEntry(name, stand.Score);
                 currentState = GameState.HighScores;
             }
@@ -276,12 +275,12 @@ namespace Asteroids
 
         void HandleTextInput(object sender, TextInputEventArgs e)
         {
-            if (e.Character == '\b') // backspace
+            if (e.Character == '\b')
             {
                 if (playerName.Length > 0)
                     playerName.Remove(playerName.Length - 1, 1);
             }
-            else if (e.Character >= ' ' && playerName.Length < 10)
+            else if (e.Character >= ' ' && playerName.Length < GameConstants.MaxNameLength)
             {
                 playerName.Append(e.Character);
             }
@@ -301,18 +300,15 @@ namespace Asteroids
             GraphicsDevice.Clear(Color.Black);
             GraphicsDevice.BlendState = BlendState.Opaque;
 
-            // Star texture — normal pass + additive boost, stretched to fill window
             var screen = new Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
             spriteBatch.Begin();
             spriteBatch.Draw(stars, screen, Color.White);
             spriteBatch.End();
 
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive);
-            spriteBatch.Draw(stars, screen, Color.White * 0.9f);
+            spriteBatch.Draw(stars, screen, Color.White * GameConstants.StarAdditiveBoost);
             spriteBatch.End();
 
-            // ── Pass 1: 3D models (before particles) ──────────────────────────
-            // SetCamera on all particle systems so base.Draw renders them correctly.
             particleEffect.draw(viewMatrix, projectionMatrix);
 
             bool gameVisible = stand.HasInitialized &&
@@ -326,10 +322,8 @@ namespace Asteroids
                 stand.drawGame(GraphicsDevice);
             }
 
-            // ── Pass 2: particles rendered by DrawableGameComponents ───────────
             base.Draw(gameTime);
 
-            // ── Pass 3: all 2D text — always on top of particles ──────────────
             switch (currentState)
             {
                 case GameState.MainMenu:
@@ -358,29 +352,30 @@ namespace Asteroids
 
         // ── Draw helpers ───────────────────────────────────────────────────────
 
-        /// Returns the X coordinate that centres `text` in the current viewport.
         float CenterX(string text, float scale = 1f) =>
             (GraphicsDevice.Viewport.Width - MeasureSp(text, scale)) / 2f;
 
         void DrawMainMenu()
         {
-            string[] items = { "PLAY", "HIGH SCORES", "QUIT" };
+            string[] items = { GameConstants.UiMenuPlay, GameConstants.UiMenuHighScores, GameConstants.UiMenuQuit };
 
             spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.AnisotropicClamp);
 
-            const string title = "ASTEROIDS";
-            DrawSp(title, CenterX(title, 2f), 120f, Color.Yellow, 2f);
+            DrawSp(GameConstants.UiTitleGame,
+                CenterX(GameConstants.UiTitleGame, GameConstants.UiTitleScale),
+                GameConstants.UiMenuTitleY, Color.Yellow, GameConstants.UiTitleScale);
 
             for (int i = 0; i < items.Length; i++)
             {
                 string prefix = (menuIndex == i) ? "> " : "  ";
                 string label  = prefix + items[i];
                 Color  color  = (menuIndex == i) ? Color.White : Color.Gray;
-                DrawSp(label, CenterX(label), 280f + i * 55f, color);
+                DrawSp(label, CenterX(label), GameConstants.UiMenuFirstItemY + i * GameConstants.UiMenuItemSpacing, color);
             }
 
-            const string hint = "UP/DOWN to select   ENTER to confirm";
-            DrawSp(hint, CenterX(hint), 540f, Color.DimGray);
+            DrawSp(GameConstants.UiHintMenuNav,
+                CenterX(GameConstants.UiHintMenuNav),
+                GameConstants.UiMenuHintY, Color.DimGray);
 
             spriteBatch.End();
         }
@@ -389,16 +384,17 @@ namespace Asteroids
         {
             spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.AnisotropicClamp);
 
-            const string title = "GAME OVER";
-            DrawSp(title, CenterX(title, 2f), 180f, Color.Red, 2f);
+            DrawSp(GameConstants.UiTitleGameOver,
+                CenterX(GameConstants.UiTitleGameOver, GameConstants.UiTitleScale),
+                GameConstants.UiGameOverTitleY, Color.Red, GameConstants.UiTitleScale);
 
             string scoreStr = "SCORE: " + stand.Score;
-            DrawSp(scoreStr, CenterX(scoreStr), 290f, Color.White);
+            DrawSp(scoreStr, CenterX(scoreStr), GameConstants.UiGameOverScoreY, Color.White);
 
             string prompt = highScoreManager.IsHighScore(stand.Score)
-                ? "NEW HIGH SCORE!  PRESS ENTER"
-                : "PRESS ENTER TO CONTINUE";
-            DrawSp(prompt, CenterX(prompt), 350f, Color.LightGray);
+                ? GameConstants.UiPromptHighScore
+                : GameConstants.UiPromptContinue;
+            DrawSp(prompt, CenterX(prompt), GameConstants.UiGameOverPromptY, Color.LightGray);
 
             spriteBatch.End();
         }
@@ -407,20 +403,25 @@ namespace Asteroids
         {
             spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.AnisotropicClamp);
 
-            const string title = "NEW HIGH SCORE!";
-            DrawSp(title, CenterX(title, 1.5f), 160f, Color.Yellow, 1.5f);
+            DrawSp(GameConstants.UiTitleHighScore,
+                CenterX(GameConstants.UiTitleHighScore, GameConstants.UiSubtitleScale),
+                GameConstants.UiEnterNameTitleY, Color.Yellow, GameConstants.UiSubtitleScale);
 
             string scoreStr = "SCORE: " + stand.Score;
-            DrawSp(scoreStr, CenterX(scoreStr), 250f, Color.White);
+            DrawSp(scoreStr, CenterX(scoreStr), GameConstants.UiEnterNameScoreY, Color.White);
 
-            const string prompt = "ENTER YOUR NAME (max 10 chars):";
-            DrawSp(prompt, CenterX(prompt), 310f, Color.LightGray);
+            DrawSp(GameConstants.UiPromptEnterName,
+                CenterX(GameConstants.UiPromptEnterName),
+                GameConstants.UiEnterNamePromptY, Color.LightGray);
 
             string nameDisplay = playerName.ToString() + "_";
-            DrawSp(nameDisplay, CenterX(nameDisplay, 1.5f), 355f, Color.White, 1.5f);
+            DrawSp(nameDisplay,
+                CenterX(nameDisplay, GameConstants.UiSubtitleScale),
+                GameConstants.UiEnterNameInputY, Color.White, GameConstants.UiSubtitleScale);
 
-            const string confirm = "ENTER to confirm   ESC to cancel";
-            DrawSp(confirm, CenterX(confirm), 540f, Color.DimGray);
+            DrawSp(GameConstants.UiHintNameEntry,
+                CenterX(GameConstants.UiHintNameEntry),
+                GameConstants.UiEnterNameHintY, Color.DimGray);
 
             spriteBatch.End();
         }
@@ -429,14 +430,15 @@ namespace Asteroids
         {
             spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.AnisotropicClamp);
 
-            const string title = "HIGH SCORES";
-            DrawSp(title, CenterX(title, 2f), 60f, Color.Yellow, 2f);
+            DrawSp(GameConstants.UiMenuHighScores,
+                CenterX(GameConstants.UiMenuHighScores, GameConstants.UiTitleScale),
+                GameConstants.UiHighScoresTitleY, Color.Yellow, GameConstants.UiTitleScale);
 
             var entries = highScoreManager.Entries;
             if (entries.Count == 0)
             {
-                const string empty = "NO SCORES YET";
-                DrawSp(empty, CenterX(empty), 280f, Color.Gray);
+                DrawSp(GameConstants.UiMsgNoScores,
+                    CenterX(GameConstants.UiMsgNoScores), 280f, Color.Gray);
             }
             else
             {
@@ -448,12 +450,14 @@ namespace Asteroids
 
                     string line = string.Format("{0,2}. {1,-10}  {2,7}",
                         i + 1, entries[i].Name, entries[i].Score);
-                    DrawSp(line, CenterX(line), 160f + i * 35f, c);
+                    DrawSp(line, CenterX(line),
+                        GameConstants.UiHighScoresFirstEntryY + i * GameConstants.UiHighScoresEntrySpacing, c);
                 }
             }
 
-            const string back = "PRESS ENTER TO RETURN";
-            DrawSp(back, CenterX(back), 560f, Color.DimGray);
+            DrawSp(GameConstants.UiHintReturn,
+                CenterX(GameConstants.UiHintReturn),
+                GameConstants.UiHighScoresHintY, Color.DimGray);
 
             spriteBatch.End();
         }
