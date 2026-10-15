@@ -6,25 +6,30 @@ using System.Text;
 
 namespace Asteroids
 {
-    class HighScoreEntry
+    public class HighScoreEntry
     {
         public string Name;
         public int Score;
         public HighScoreEntry(string name, int score) { Name = name; Score = score; }
     }
 
-    class HighScoreManager
+    public class HighScoreManager
     {
         // File layout: [16 bytes IV][32 bytes HMAC-SHA256][AES-256-CBC ciphertext]
         private const int IvSize   = 16;
         private const int MacSize  = 32;
         private const int HeaderSize = IvSize + MacSize;
 
-        private string FilePath => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, GameConstants.HighScoresFile);
+        private readonly string _baseDir;
+        private string FilePath => Path.Combine(_baseDir, GameConstants.HighScoresFile);
 
         public List<HighScoreEntry> Entries { get; private set; } = new List<HighScoreEntry>();
 
-        public HighScoreManager() { Load(); }
+        public HighScoreManager(string baseDir = null)
+        {
+            _baseDir = baseDir ?? AppDomain.CurrentDomain.BaseDirectory;
+            Load();
+        }
 
         public void Load()
         {

@@ -18,5 +18,11 @@ When adding a new feature, add its constants to the appropriate section in
 
 ## Before checking in
 
-Always run `dotnet build` from `3D Model/3D Model/` and confirm it reports
-**0 errors** before committing. Do not commit code that does not build.
+Always run both of the following from the repo root and confirm both pass
+before committing. Do not commit code that fails either check.
+
+1. **Build** – run `dotnet build` from `3D Model/3D Model/` and confirm it
+   reports **0 errors**.
+
+2. **Unit tests** – run `dotnet test Asteroids.Tests/Asteroids.Tests.csproj`
+   from the repo root and confirm it reports **0 failed** tests.

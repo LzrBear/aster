@@ -255,28 +255,43 @@ namespace Asteroids.Game_Types
             asteroidList[i].cracksToBreak = cracksForSize(AsteroidSize.Large);
         }
 
-        // Bullet hit: instantly shrinks by one size, resets cracks. At Small, respawns off-screen.
+        // Bullet hit: destroys the asteroid and spawns N fragments of the next size down.
         // Returns the score bonus earned.
         private int shrinkAsteroid(int i)
         {
-            if (asteroidList[i].Size == AsteroidSize.Large)
-            {
-                asteroidList[i].Size = AsteroidSize.Medium;
-                asteroidList[i].cracks = 0;
-                asteroidList[i].cracksToBreak = cracksForSize(AsteroidSize.Medium);
-                return GameConstants.LargeAsteroidBonus;
-            }
-            else if (asteroidList[i].Size == AsteroidSize.Medium)
-            {
-                asteroidList[i].Size = AsteroidSize.Small;
-                asteroidList[i].cracks = 0;
-                asteroidList[i].cracksToBreak = cracksForSize(AsteroidSize.Small);
-                return GameConstants.MediumAsteroidBonus;
-            }
-            else
+            AsteroidSize currentSize = asteroidList[i].Size;
+            particleEffect.UpdateSmoke(asteroidList[i].position, AsteroidScale(currentSize));
+
+            if (currentSize == AsteroidSize.Small)
             {
                 resetAster(i);
                 return GameConstants.SmallAsteroidBonus;
+            }
+
+            AsteroidSize nextSize = (currentSize == AsteroidSize.Large) ? AsteroidSize.Medium : AsteroidSize.Small;
+            int count   = (currentSize == AsteroidSize.Large) ? GameConstants.LargeAsteroidFragments : GameConstants.MediumAsteroidFragments;
+            int bonus   = (currentSize == AsteroidSize.Large) ? GameConstants.LargeAsteroidBonus : GameConstants.MediumAsteroidBonus;
+
+            SpawnFragments(i, asteroidList[i].position, asteroidList[i].direction, nextSize, count);
+            return bonus;
+        }
+
+        // Marks sourceSlot inactive and spawns count fragments of size evenly spread around a circle.
+        private void SpawnFragments(int sourceSlot, Vector3 pos, Vector3 sourceDir, AsteroidSize size, int count)
+        {
+            asteroidList[sourceSlot].isActive = false;
+
+            float baseAngle = (float)Math.Atan2(sourceDir.Y, sourceDir.X);
+            int spawned = 0;
+            for (int j = 0; j < GameConstants.NumAsteroids && spawned < count; j++)
+            {
+                if (!asteroidList[j].isActive)
+                {
+                    float angle = baseAngle + (float)(spawned * 2 * Math.PI / count);
+                    Vector3 dir = new Vector3((float)Math.Cos(angle), (float)Math.Sin(angle), 0f);
+                    initSplitAsteroid(j, pos + dir * GameConstants.AsteroidSplitSeparation, dir, size);
+                    spawned++;
+                }
             }
         }
 
@@ -335,13 +350,11 @@ namespace Asteroids.Game_Types
             return Math.Max(1, SizeRank(attacker) - SizeRank(target) + 1);
         }
 
-        // Splits an asteroid into two of the next size down, spreading ~45° apart.
-        // Large → 2×Medium, Medium → 2×Small, Small → gone (respawn Large off-screen).
+        // Splits an asteroid into N fragments of the next size down, spread evenly around a full circle.
+        // Large → 3×Medium, Medium → 2×Small, Small → gone (respawn Large off-screen).
         private void splitAsteroid(int i)
         {
             AsteroidSize currentSize = asteroidList[i].Size;
-
-            // Emit a destruction burst sized to cover the vanishing asteroid mesh
             particleEffect.UpdateSmoke(asteroidList[i].position, AsteroidScale(currentSize));
 
             if (currentSize == AsteroidSize.Small)
@@ -350,33 +363,10 @@ namespace Asteroids.Game_Types
                 return;
             }
 
-            AsteroidSize nextSize = (currentSize == AsteroidSize.Large)
-                ? AsteroidSize.Medium : AsteroidSize.Small;
+            AsteroidSize nextSize = (currentSize == AsteroidSize.Large) ? AsteroidSize.Medium : AsteroidSize.Small;
+            int count = (currentSize == AsteroidSize.Large) ? GameConstants.LargeAsteroidFragments : GameConstants.MediumAsteroidFragments;
 
-            Vector3 pos = asteroidList[i].position;
-            Vector3 dir = asteroidList[i].direction;
-
-            // Spread the two fragments ~45° apart from the original direction
-            Vector3 dir1 = Vector3.Transform(dir, Matrix.CreateRotationZ(-MathHelper.PiOver4));
-            Vector3 dir2 = Vector3.Transform(dir, Matrix.CreateRotationZ( MathHelper.PiOver4));
-            dir1.Normalize();
-            dir2.Normalize();
-
-            // Offset each fragment along its own direction so they don't start at the same
-            // position — identical positions cause a zero-length normal on the next collision
-            // check, Normalize() returns NaN, and all positions go NaN.
-            float separation = GameConstants.AsteroidSplitSeparation;
-            initSplitAsteroid(i, pos + dir1 * separation, dir1, nextSize);
-
-            // Find a free slot for the second fragment
-            for (int j = 0; j < GameConstants.NumAsteroids; j++)
-            {
-                if (!asteroidList[j].isActive)
-                {
-                    initSplitAsteroid(j, pos + dir2 * separation, dir2, nextSize);
-                    break;
-                }
-            }
+            SpawnFragments(i, asteroidList[i].position, asteroidList[i].direction, nextSize, count);
         }
 
         private static float AsteroidScale(AsteroidSize size)

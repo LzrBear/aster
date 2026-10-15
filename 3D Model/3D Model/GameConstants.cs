@@ -1,6 +1,6 @@
 namespace Asteroids
 {
-    class GameConstants
+    public class GameConstants
     {
         // ── Window ────────────────────────────────────────────────────────────
         public const int WindowWidth  = 1280;
@@ -61,6 +61,11 @@ namespace Asteroids
         public const int AsteroidSizeRankLarge  = 3;
         public const int AsteroidSizeRankMedium = 2;
         public const int AsteroidSizeRankSmall  = 1;
+
+        // Number of fragments spawned when an asteroid is destroyed (= its size rank).
+        // Large → 3 Medium, Medium → 2 Small, Small → gone (respawn off-screen).
+        public const int LargeAsteroidFragments  = 3;
+        public const int MediumAsteroidFragments = 2;
 
         // ── Bullets ───────────────────────────────────────────────────────────
         public const int   NumBullets          = 30;
