@@ -36,9 +36,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: desktopgl-content
-          path: |
-            AsteroidsContent/bin/DesktopGL/
-            AsteroidsContent/obj/DesktopGL/
+          path: AsteroidsContent/bin/DesktopGL/
 
       - name: Publish win-x64 lite (framework-dependent)
         run: dotnet publish Asteroids/Asteroids.csproj /p:PublishProfile=win-x64
@@ -103,13 +101,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: desktopgl-content
-          path: AsteroidsContent/
+          path: .
 
       - name: Publish osx-arm64
-        run: dotnet publish Asteroids/Asteroids.GL.csproj /p:PublishProfile=osx-arm64
+        run: dotnet publish Asteroids/Asteroids.GL.csproj /p:PublishProfile=osx-arm64 /p:SkipMGCBBuild=true
 
       - name: Publish osx-x64
-        run: dotnet publish Asteroids/Asteroids.GL.csproj /p:PublishProfile=osx-x64
+        run: dotnet publish Asteroids/Asteroids.GL.csproj /p:PublishProfile=osx-x64 /p:SkipMGCBBuild=true
 
       - name: Package macOS zips
         run: |
@@ -146,10 +144,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: desktopgl-content
-          path: AsteroidsContent/
+          path: .
 
       - name: Publish linux-x64
-        run: dotnet publish Asteroids/Asteroids.GL.csproj /p:PublishProfile=linux-x64
+        run: dotnet publish Asteroids/Asteroids.GL.csproj /p:PublishProfile=linux-x64 /p:SkipMGCBBuild=true
 
       - name: Package Linux tar.gz
         run: |

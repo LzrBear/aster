@@ -1,0 +1,29 @@
+<Project>
+  <!--
+    Overrides MonoGame.Content.Builder.Task's RunContentBuilder target.
+    When SkipMGCBBuild=true, mgcb is not invoked — pre-built content already in
+    ContentOutputDir is picked up directly. Used by macOS/Linux CI jobs that
+    download content built on Windows to avoid native lib incompatibilities.
+    When SkipMGCBBuild is unset (the default), behaviour is identical to the
+    original target: tool restore, mgcb invocation, then collect output.
+  -->
+  <Target Name="RunContentBuilder" DependsOnTargets="PrepareContentBuilder">
+
+    <Exec Command="$(DotnetCommand) tool restore"
+          Condition="'$(SkipMGCBBuild)' != 'true'" />
+
+    <Exec
+      Condition="'%(ContentReference.FullPath)' != '' AND '$(SkipMGCBBuild)' != 'true'"
+      Command="$(DotnetCommand) $(MGCBCommand) $(MonoGameMGCBAdditionalArguments) /@:&quot;%(ContentReference.FullPath)&quot; /platform:$(MonoGamePlatform) /outputDir:&quot;%(ContentReference.ContentOutputDir)&quot; /intermediateDir:&quot;%(ContentReference.ContentIntermediateOutputDir)&quot; /workingDir:&quot;%(ContentReference.FullDir)&quot;"
+      WorkingDirectory="$(MSBuildProjectDirectory)" />
+
+    <ItemGroup>
+      <ExtraContent
+        Condition="'%(ContentReference.ContentOutputDir)' != ''"
+        Include="%(ContentReference.ContentOutputDir)\**\*.*">
+        <ContentDir>%(ContentReference.ContentDir)</ContentDir>
+      </ExtraContent>
+    </ItemGroup>
+
+  </Target>
+</Project>
