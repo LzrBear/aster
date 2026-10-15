@@ -88,6 +88,29 @@ Pre-built binaries for all platforms are available on the [Releases page](../../
 | macOS x64 | `Asteroids_*_osx-x64.zip` | Intel Mac |
 | Linux x64 | `Asteroids_*_linux-x64.tar.gz` | Self-contained |
 
+### Windows
+
+Run the installer (`.exe`) or unzip the portable archive and double-click `Asteroids.exe`.
+
+### macOS
+
+```bash
+unzip Asteroids_*_osx-arm64.zip   # or osx-x64.zip on Intel
+chmod +x Asteroids
+./Asteroids
+```
+
+### Linux
+
+```bash
+# Install SDL2 if not already present
+sudo apt install libsdl2-2.0-0
+
+tar -xzf Asteroids_*_linux-x64.tar.gz
+chmod +x Asteroids
+./Asteroids
+```
+
 ## Creating a Windows Installer (manual)
 
 1. Publish a self-contained win-x64 build:
