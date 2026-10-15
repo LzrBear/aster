@@ -20,7 +20,7 @@
     <ItemGroup>
       <ExtraContent
         Condition="'%(ContentReference.ContentOutputDir)' != ''"
-        Include="%(ContentReference.ContentOutputDir)\**\*.*">
+        Include="%(ContentReference.ContentOutputDir)/**/*">
         <ContentDir>%(ContentReference.ContentDir)</ContentDir>
       </ExtraContent>
     </ItemGroup>
