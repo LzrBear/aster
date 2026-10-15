@@ -139,6 +139,23 @@ namespace Asteroids.Game_Types
 
         }
 
+        public bool IsGameOver => ship.lives <= 0;
+        public int Score => score;
+
+        public void Reset()
+        {
+            score = 0;
+            ship.lives = GameConstants.lives;
+            ship.isActive = true;
+            ship.Position = Vector3.Zero;
+            ship.Velocity = Vector3.Zero;
+            ship.Rotation = 0.0f;
+            for (int i = 0; i < GameConstants.NumBullets; i++)
+                bulletList[i].isActive = false;
+            soundEngineInstance.Stop();
+            ResetAsteroids();
+        }
+
         //Resets all the asteroids in the asteroid list;
         public void ResetAsteroids()
         {
@@ -150,53 +167,42 @@ namespace Asteroids.Game_Types
 
         public void resetAster(int i)
         {
-            float xStart = 0.0f;
-            float yStart = 0.0f;
-            if (random.Next(2) == 0)
+            // Pick one of four edges at random and place the asteroid just off-screen on it.
+            float xStart, yStart;
+            Vector3 inward; // unit vector pointing into the playfield from that edge
+
+            switch (random.Next(4))
             {
-                // Spawn on left or right edge (fully off-screen)
-                xStart = random.Next(2) == 0 ? -GameConstants.PlayfieldSizeX : GameConstants.PlayfieldSizeX;
-                yStart = (float)(random.NextDouble() * 2 - 1) * GameConstants.PlayfieldSizeY;
-            }
-            else
-            {
-                // Spawn on top or bottom edge (fully off-screen)
-                yStart = random.Next(2) == 0 ? -GameConstants.PlayfieldSizeY : GameConstants.PlayfieldSizeY;
-                xStart = (float)(random.NextDouble() * 2 - 1) * GameConstants.PlayfieldSizeX;
+                case 0: // left edge
+                    xStart = -GameConstants.PlayfieldSizeX;
+                    yStart = (float)(random.NextDouble() * 2 - 1) * GameConstants.PlayfieldSizeY;
+                    inward = new Vector3(1, 0, 0);
+                    break;
+                case 1: // right edge
+                    xStart = GameConstants.PlayfieldSizeX;
+                    yStart = (float)(random.NextDouble() * 2 - 1) * GameConstants.PlayfieldSizeY;
+                    inward = new Vector3(-1, 0, 0);
+                    break;
+                case 2: // top edge
+                    xStart = (float)(random.NextDouble() * 2 - 1) * GameConstants.PlayfieldSizeX;
+                    yStart = GameConstants.PlayfieldSizeY;
+                    inward = new Vector3(0, -1, 0);
+                    break;
+                default: // bottom edge
+                    xStart = (float)(random.NextDouble() * 2 - 1) * GameConstants.PlayfieldSizeX;
+                    yStart = -GameConstants.PlayfieldSizeY;
+                    inward = new Vector3(0, 1, 0);
+                    break;
             }
 
             asteroidList[i].position = new Vector3(xStart, yStart, 0.0f);
 
-            // Pick a direction that points generally toward the visible play area.
-            // Restrict the inward half-circle based on which edge the asteroid spawned on.
-            double angle;
-            if (Math.Abs(xStart) >= Math.Abs(yStart))
-            {
-                // Spawned on left/right edge — must travel inward (X toward zero)
-                // Right edge: direction.X = -sin(angle) < 0  →  sin(angle) > 0  →  angle in (0, π)
-                // Left  edge: direction.X = -sin(angle) > 0  →  sin(angle) < 0  →  angle in (π, 2π)
-                if (xStart > 0)
-                    angle = random.NextDouble() * Math.PI;           // 0..π  → X moves left
-                else
-                    angle = Math.PI + random.NextDouble() * Math.PI; // π..2π → X moves right
-            }
-            else
-            {
-                // Spawned on top/bottom edge — must travel inward (Y toward zero)
-                // Top  edge (yStart > 0): cos(angle) < 0 → angle in (π/2, 3π/2)
-                // Bottom edge (yStart < 0): cos(angle) > 0 → angle in (-π/2, π/2) = (3π/2..2π) ∪ (0..π/2)
-                if (yStart > 0)
-                    angle = Math.PI / 2 + random.NextDouble() * Math.PI;   // π/2..3π/2 → Y moves down
-                else
-                {
-                    // (3π/2..2π) or (0..π/2) — pick uniformly from the inward half
-                    angle = random.NextDouble() < 0.5
-                        ? random.NextDouble() * Math.PI / 2                  // 0..π/2
-                        : 3 * Math.PI / 2 + random.NextDouble() * Math.PI / 2; // 3π/2..2π
-                }
-            }
-            asteroidList[i].direction.X = -(float)Math.Sin(angle);
-            asteroidList[i].direction.Y = (float)Math.Cos(angle);
+            // Rotate the inward normal by a random spread of ±60° so asteroids approach
+            // at various angles but always move toward the center of the playfield.
+            float spread = (float)((random.NextDouble() * 2 - 1) * Math.PI / 3);
+            Vector3 dir = Vector3.Transform(inward, Matrix.CreateRotationZ(spread));
+            asteroidList[i].direction.X = dir.X;
+            asteroidList[i].direction.Y = dir.Y;
             asteroidList[i].speed = GameConstants.AsteroidMinSpeed +
                 (float)random.NextDouble() * GameConstants.AsteroidMaxSpeed;
             asteroidList[i].Size = AsteroidSize.Large;

@@ -16,6 +16,7 @@ namespace Asteroids.Game_Types
     {
         //Simple checking condition to see if the game has been initialized
         private bool initialized = false;
+        public bool HasInitialized => initialized;
 
         abstract protected void Initialize(Game game, GraphicsDevice graphics, Matrix projectionMatrix, Matrix viewMatrix);
         abstract protected void updateGame(GameTime gameTime);
