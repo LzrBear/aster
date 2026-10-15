@@ -113,7 +113,8 @@ namespace Asteroids.Game_Types
 
             //Load the fonts
             kootenay = game.Content.Load<SpriteFont>("Fonts/Lucida Console");
-            _spaceWidth = kootenay.MeasureString("M").X * 0.5f;
+            _spaceWidth  = kootenay.MeasureString("M").X * 0.5f;
+            livesPosition = new Vector2(100, scorePosition.Y + kootenay.LineSpacing);
 
             //Initialize the particle Effects
             particleEffect.initialize(game);
@@ -621,18 +622,9 @@ namespace Asteroids.Game_Types
             }
         }
 
-        Matrix UITransform()
-        {
-            float vw = game.GraphicsDevice.Viewport.Width;
-            float vh = game.GraphicsDevice.Viewport.Height;
-            float s  = Math.Min(vw / 800f, vh / 600f);
-            return Matrix.CreateScale(s, s, 1f)
-                 * Matrix.CreateTranslation((vw - 800f * s) / 2f, (vh - 600f * s) / 2f, 0f);
-        }
-
         void DrawHudCentered(string text, float y, Color color, float scale = 1f)
         {
-            float x = (800f - MeasureSpHud(text, scale)) / 2f;
+            float x = (game.GraphicsDevice.Viewport.Width - MeasureSpHud(text, scale)) / 2f;
             DrawSpHud(text, new Vector2(x, y), color, scale);
         }
 
@@ -688,7 +680,7 @@ namespace Asteroids.Game_Types
         // Drawn after particles so text always appears on top.
         public void drawHUD()
         {
-            spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, UITransform());
+            spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.AnisotropicClamp);
             DrawSpHud("Score: " + score, scorePosition, Color.LightGreen);
             DrawSpHud("Lives: " + ship.lives, livesPosition, Color.LightGreen);
 

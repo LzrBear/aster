@@ -51,6 +51,8 @@ namespace Asteroids
         {
             graphics = new GraphicsDeviceManager(this);
             graphics.PreferMultiSampling = true;
+            graphics.PreferredBackBufferWidth  = 1280;
+            graphics.PreferredBackBufferHeight = 720;
             Content.RootDirectory = "3D ModelContent";
             particleEffect.initialize(this);
         }
@@ -62,7 +64,7 @@ namespace Asteroids
 
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(
                 MathHelper.ToRadians(45.0f),
-                GraphicsDevice.DisplayMode.AspectRatio,
+                (float)GraphicsDevice.Viewport.Width / GraphicsDevice.Viewport.Height,
                 GameConstants.CameraHeight - 2000.0f,
                 GameConstants.CameraHeight + 2000.0f);
             viewMatrix = Matrix.CreateLookAt(cameraPosition, Vector3.Zero, Vector3.Up);
@@ -356,26 +358,15 @@ namespace Asteroids
 
         // ── Draw helpers ───────────────────────────────────────────────────────
 
-        // Maps the virtual 800×600 canvas to the actual viewport with uniform scaling
-        // and a centering offset so text positions are always in virtual-pixel space.
-        Matrix UITransform()
-        {
-            float vw = GraphicsDevice.Viewport.Width;
-            float vh = GraphicsDevice.Viewport.Height;
-            float s  = Math.Min(vw / 800f, vh / 600f);
-            return Matrix.CreateScale(s, s, 1f)
-                 * Matrix.CreateTranslation((vw - 800f * s) / 2f, (vh - 600f * s) / 2f, 0f);
-        }
-
-        /// Returns the X coordinate that centres `text` in the virtual 800-wide canvas.
+        /// Returns the X coordinate that centres `text` in the current viewport.
         float CenterX(string text, float scale = 1f) =>
-            (800f - MeasureSp(text, scale)) / 2f;
+            (GraphicsDevice.Viewport.Width - MeasureSp(text, scale)) / 2f;
 
         void DrawMainMenu()
         {
             string[] items = { "PLAY", "HIGH SCORES", "QUIT" };
 
-            spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, UITransform());
+            spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.AnisotropicClamp);
 
             const string title = "ASTEROIDS";
             DrawSp(title, CenterX(title, 2f), 120f, Color.Yellow, 2f);
@@ -396,7 +387,7 @@ namespace Asteroids
 
         void DrawGameOver()
         {
-            spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, UITransform());
+            spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.AnisotropicClamp);
 
             const string title = "GAME OVER";
             DrawSp(title, CenterX(title, 2f), 180f, Color.Red, 2f);
@@ -414,7 +405,7 @@ namespace Asteroids
 
         void DrawEnterName()
         {
-            spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, UITransform());
+            spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.AnisotropicClamp);
 
             const string title = "NEW HIGH SCORE!";
             DrawSp(title, CenterX(title, 1.5f), 160f, Color.Yellow, 1.5f);
@@ -436,7 +427,7 @@ namespace Asteroids
 
         void DrawHighScores()
         {
-            spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, UITransform());
+            spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.AnisotropicClamp);
 
             const string title = "HIGH SCORES";
             DrawSp(title, CenterX(title, 2f), 60f, Color.Yellow, 2f);
