@@ -1,0 +1,11 @@
+<Project>
+  <!--
+    Two projects in this folder (Asteroids.csproj / Asteroids.GL.csproj) target
+    different frameworks and would overwrite each other's project.assets.json if
+    they share the same obj/ directory.  Setting MSBuildProjectExtensionsPath here
+    (before any SDK import) gives each project its own obj sub-folder.
+  -->
+  <PropertyGroup>
+    <MSBuildProjectExtensionsPath>$(MSBuildProjectDirectory)\obj\$(MSBuildProjectName)\</MSBuildProjectExtensionsPath>
+  </PropertyGroup>
+</Project>
