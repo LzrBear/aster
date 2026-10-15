@@ -113,8 +113,8 @@ jobs:
         run: |
           mkdir -p Asteroids/publish/osx-arm64/AsteroidsContent
           mkdir -p Asteroids/publish/osx-x64/AsteroidsContent
-          cp -r AsteroidsContent/bin/DesktopGL/Content/. Asteroids/publish/osx-arm64/AsteroidsContent/
-          cp -r AsteroidsContent/bin/DesktopGL/Content/. Asteroids/publish/osx-x64/AsteroidsContent/
+          cp -r Content/. Asteroids/publish/osx-arm64/AsteroidsContent/
+          cp -r Content/. Asteroids/publish/osx-x64/AsteroidsContent/
 
       - name: Package macOS zips
         run: |
@@ -159,7 +159,7 @@ jobs:
       - name: Copy pre-built content into publish dir
         run: |
           mkdir -p Asteroids/publish/linux-x64/AsteroidsContent
-          cp -r AsteroidsContent/bin/DesktopGL/Content/. Asteroids/publish/linux-x64/AsteroidsContent/
+          cp -r Content/. Asteroids/publish/linux-x64/AsteroidsContent/
 
       - name: Package Linux tar.gz
         run: |
