@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release:
+    runs-on: windows-latest
+    permissions:
+      contents: write   # required to create a GitHub Release
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore
+        run: dotnet restore Asteroids.sln
+
+      - name: Build
+        run: dotnet build "3D Model/3D Model/Asteroids.csproj" -c Release --no-restore
+
+      - name: Test
+        run: dotnet test Asteroids.Tests/Asteroids.Tests.csproj --no-restore
+
+      - name: Publish win-x64
+        run: dotnet publish "3D Model/3D Model/Asteroids.csproj" /p:PublishProfile=win-x64 --no-restore
+
+      - name: Extract version
+        id: ver
+        shell: pwsh
+        run: |
+          $v = "${{ github.ref_name }}" -replace '^v', ''
+          echo "value=$v" >> $env:GITHUB_OUTPUT
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+          & $iscc /DAppVersion=${{ steps.ver.outputs.value }} installer\Asteroids.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Create GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create ${{ github.ref_name }} `
+            "installer/output/Asteroids_Setup_${{ steps.ver.outputs.value }}.exe" `
+            --title "Asteroids ${{ github.ref_name }}" `
+            --generate-notes

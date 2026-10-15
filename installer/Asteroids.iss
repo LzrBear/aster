@@ -6,7 +6,10 @@
 ;   3. Compile this script with Inno Setup Compiler (ISCC.exe) or the IDE
 
 #define AppName    "Asteroids"
-#define AppVersion "1.0"
+; AppVersion can be overridden from the command line: ISCC.exe /DAppVersion=1.2.3
+#ifndef AppVersion
+  #define AppVersion "1.0"
+#endif
 #define AppPublisher "Sameer Saini"
 #define AppExeName "Asteroids.exe"
 #define PublishDir "..\3D Model\3D Model\publish\win-x64"
