@@ -147,6 +147,26 @@ namespace Asteroids.Game_Types
         public bool IsGameOver => ship.lives <= 0;
         public int Score => score;
 
+        // Called by asterGame whenever the window is resized.
+        public void UpdateProjection(Matrix projection, Matrix view)
+        {
+            projectionMatrix = projection;
+            viewMatrix = view;
+
+            // Recompute visible half-extents and playfield boundaries
+            visibleHalfX = GameConstants.CameraHeight / projection.M11;
+            visibleHalfY = GameConstants.CameraHeight / projection.M22;
+            GameConstants.PlayfieldSizeX     = visibleHalfX * 1.15f;
+            GameConstants.PlayfieldSizeY     = visibleHalfY * 1.15f;
+            GameConstants.PlayfieldSizeX_min = visibleHalfX;
+            GameConstants.PlayfieldSizeY_min = visibleHalfY;
+
+            // Re-apply projection/view to all model effects
+            SetupEffectDefaults(ship.Model,      projectionMatrix, viewMatrix);
+            SetupEffectDefaults(asteroidModel,   projectionMatrix, viewMatrix);
+            SetupEffectDefaults(bulletModel,     projectionMatrix, viewMatrix);
+        }
+
         public void Reset()
         {
             score = 0;
@@ -603,7 +623,7 @@ namespace Asteroids.Game_Types
 
         void DrawHudCentered(string text, float y, Color color, float scale = 1f)
         {
-            float x = (800f - MeasureSpHud(text, scale)) / 2f;
+            float x = (game.GraphicsDevice.Viewport.Width - MeasureSpHud(text, scale)) / 2f;
             DrawSpHud(text, new Vector2(x, y), color, scale);
         }
 

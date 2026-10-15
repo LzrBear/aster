@@ -56,6 +56,9 @@ namespace Asteroids
 
         protected override void Initialize()
         {
+            Window.AllowUserResizing = true;
+            Window.ClientSizeChanged += OnResize;
+
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(
                 MathHelper.ToRadians(45.0f),
                 GraphicsDevice.DisplayMode.AspectRatio,
@@ -66,6 +69,22 @@ namespace Asteroids
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             base.Initialize();
+        }
+
+        void OnResize(object sender, EventArgs e)
+        {
+            int w = GraphicsDevice.Viewport.Width;
+            int h = GraphicsDevice.Viewport.Height;
+            if (w == 0 || h == 0) return;
+
+            projectionMatrix = Matrix.CreatePerspectiveFieldOfView(
+                MathHelper.ToRadians(45.0f),
+                (float)w / h,
+                GameConstants.CameraHeight - 2000.0f,
+                GameConstants.CameraHeight + 2000.0f);
+
+            if (stand.HasInitialized)
+                stand.UpdateProjection(projectionMatrix, viewMatrix);
         }
 
         protected override void LoadContent()
@@ -279,13 +298,14 @@ namespace Asteroids
             GraphicsDevice.Clear(Color.Black);
             GraphicsDevice.BlendState = BlendState.Opaque;
 
-            // Star texture — normal pass + additive boost
+            // Star texture — normal pass + additive boost, stretched to fill window
+            var screen = new Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
             spriteBatch.Begin();
-            spriteBatch.Draw(stars, new Rectangle(0, 0, 800, 600), Color.White);
+            spriteBatch.Draw(stars, screen, Color.White);
             spriteBatch.End();
 
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive);
-            spriteBatch.Draw(stars, new Rectangle(0, 0, 800, 600), Color.White * 0.9f);
+            spriteBatch.Draw(stars, screen, Color.White * 0.9f);
             spriteBatch.End();
 
             // Animated star particles (always)
@@ -333,9 +353,9 @@ namespace Asteroids
 
         // ── Draw helpers ───────────────────────────────────────────────────────
 
-        /// Returns the X coordinate that centres `text` on an 800-wide screen.
+        /// Returns the X coordinate that centres `text` on the current viewport.
         float CenterX(string text, float scale = 1f) =>
-            (800f - MeasureSp(text, scale)) / 2f;
+            (GraphicsDevice.Viewport.Width - MeasureSp(text, scale)) / 2f;
 
         void DrawMainMenu()
         {
