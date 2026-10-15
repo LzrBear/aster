@@ -81,10 +81,11 @@ namespace Asteroids.Game_Types
             visibleHalfX = GameConstants.CameraHeight / pMatrix.M11;
             visibleHalfY = GameConstants.CameraHeight / pMatrix.M22;
 
-            // Set playfield to 2× the visible area so asteroids spawn well off-screen
-            // and the wrap boundary matches — preventing instant teleport on spawn.
-            GameConstants.PlayfieldSizeX = visibleHalfX * 2.0f;
-            GameConstants.PlayfieldSizeY = visibleHalfY * 2.0f;
+            // Set playfield to 1.15× the visible area — just off-screen but close enough
+            // that asteroids drift into view quickly. Wrap boundary matches spawn boundary
+            // to prevent instant teleport.
+            GameConstants.PlayfieldSizeX = visibleHalfX * 1.15f;
+            GameConstants.PlayfieldSizeY = visibleHalfY * 1.15f;
             GameConstants.PlayfieldSizeX_min = visibleHalfX;
             GameConstants.PlayfieldSizeY_min = visibleHalfY;
 
@@ -164,7 +165,35 @@ namespace Asteroids.Game_Types
             }
 
             asteroidList[i].position = new Vector3(xStart, yStart, 0.0f);
-            double angle = random.NextDouble() * 2 * Math.PI;
+
+            // Pick a direction that points generally toward the visible play area.
+            // Restrict the inward half-circle based on which edge the asteroid spawned on.
+            double angle;
+            if (Math.Abs(xStart) >= Math.Abs(yStart))
+            {
+                // Spawned on left/right edge — must travel inward (X toward zero)
+                // Right edge: direction.X = -sin(angle) < 0  →  sin(angle) > 0  →  angle in (0, π)
+                // Left  edge: direction.X = -sin(angle) > 0  →  sin(angle) < 0  →  angle in (π, 2π)
+                if (xStart > 0)
+                    angle = random.NextDouble() * Math.PI;           // 0..π  → X moves left
+                else
+                    angle = Math.PI + random.NextDouble() * Math.PI; // π..2π → X moves right
+            }
+            else
+            {
+                // Spawned on top/bottom edge — must travel inward (Y toward zero)
+                // Top  edge (yStart > 0): cos(angle) < 0 → angle in (π/2, 3π/2)
+                // Bottom edge (yStart < 0): cos(angle) > 0 → angle in (-π/2, π/2) = (3π/2..2π) ∪ (0..π/2)
+                if (yStart > 0)
+                    angle = Math.PI / 2 + random.NextDouble() * Math.PI;   // π/2..3π/2 → Y moves down
+                else
+                {
+                    // (3π/2..2π) or (0..π/2) — pick uniformly from the inward half
+                    angle = random.NextDouble() < 0.5
+                        ? random.NextDouble() * Math.PI / 2                  // 0..π/2
+                        : 3 * Math.PI / 2 + random.NextDouble() * Math.PI / 2; // 3π/2..2π
+                }
+            }
             asteroidList[i].direction.X = -(float)Math.Sin(angle);
             asteroidList[i].direction.Y = (float)Math.Cos(angle);
             asteroidList[i].speed = GameConstants.AsteroidMinSpeed +
