@@ -115,6 +115,8 @@ jobs:
           mkdir -p Asteroids/publish/osx-x64/AsteroidsContent
           cp -r Content/. Asteroids/publish/osx-arm64/AsteroidsContent/
           cp -r Content/. Asteroids/publish/osx-x64/AsteroidsContent/
+          ln -s Textures Asteroids/publish/osx-arm64/AsteroidsContent/textures
+          ln -s Textures Asteroids/publish/osx-x64/AsteroidsContent/textures
 
       - name: Package macOS zips
         run: |
@@ -160,6 +162,7 @@ jobs:
         run: |
           mkdir -p Asteroids/publish/linux-x64/AsteroidsContent
           cp -r Content/. Asteroids/publish/linux-x64/AsteroidsContent/
+          ln -s Textures Asteroids/publish/linux-x64/AsteroidsContent/textures
 
       - name: Package Linux tar.gz
         run: |
