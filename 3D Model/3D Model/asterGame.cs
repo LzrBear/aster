@@ -34,6 +34,7 @@ namespace Asteroids
         GameState currentState = GameState.MainMenu;
         int menuIndex = 0;
         SpriteFont menuFont;
+        float _spaceWidth;   // computed from font metrics; used by DrawSp/MeasureSp
 
         // High scores
         HighScoreManager highScoreManager = new HighScoreManager();
@@ -70,12 +71,61 @@ namespace Asteroids
         protected override void LoadContent()
         {
             stars      = Content.Load<Texture2D>("Textures/B1_stars");
-            menuFont   = Content.Load<SpriteFont>("Fonts/Lucida Console");
+            menuFont    = Content.Load<SpriteFont>("Fonts/Lucida Console");
+            // MonoGame pipeline gives the space glyph zero advance (empty bounding box).
+            // We measure it ourselves and use DrawSp/MeasureSp for any text with spaces.
+            _spaceWidth = menuFont.MeasureString("M").X * 0.5f;
 
             Music_default = Content.Load<Song>("Audio/Music/Hyper Space");
             MediaPlayer.Volume     = GameConstants.MusicVolume;
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Play(Music_default);
+        }
+
+        // ── Space-aware text helpers ───────────────────────────────────────────
+        // MonoGame's pipeline gives the space glyph zero advance because it has no
+        // visible pixels.  DrawSp / MeasureSp split on spaces and insert _spaceWidth
+        // manually so centering and rendering both work correctly.
+
+        float MeasureSp(string text, float scale = 1f)
+        {
+            float w = 0f;
+            int segStart = 0;
+            for (int i = 0; i <= text.Length; i++)
+            {
+                if (i == text.Length || text[i] == ' ')
+                {
+                    if (i > segStart)
+                        w += menuFont.MeasureString(text.Substring(segStart, i - segStart)).X;
+                    if (i < text.Length)   // it's a space
+                        w += _spaceWidth;
+                    segStart = i + 1;
+                }
+            }
+            return w * scale;
+        }
+
+        void DrawSp(string text, float x, float y, Color color, float scale = 1f)
+        {
+            float curX = x;
+            int segStart = 0;
+            for (int i = 0; i <= text.Length; i++)
+            {
+                if (i == text.Length || text[i] == ' ')
+                {
+                    if (i > segStart)
+                    {
+                        string seg = text.Substring(segStart, i - segStart);
+                        spriteBatch.DrawString(menuFont, seg,
+                            new Vector2(curX, y), color,
+                            0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+                        curX += menuFont.MeasureString(seg).X * scale;
+                    }
+                    if (i < text.Length)   // it's a space
+                        curX += _spaceWidth * scale;
+                    segStart = i + 1;
+                }
+            }
         }
 
         protected override void UnloadContent() { }
@@ -285,34 +335,27 @@ namespace Asteroids
 
         /// Returns the X coordinate that centres `text` on an 800-wide screen.
         float CenterX(string text, float scale = 1f) =>
-            (800f - menuFont.MeasureString(text).X * scale) / 2f;
+            (800f - MeasureSp(text, scale)) / 2f;
 
         void DrawMainMenu()
         {
-            string[] items  = { "PLAY", "HIGH SCORES", "QUIT" };
+            string[] items = { "PLAY", "HIGH SCORES", "QUIT" };
 
             spriteBatch.Begin();
 
-            // Title
             const string title = "ASTEROIDS";
-            spriteBatch.DrawString(menuFont, title,
-                new Vector2(CenterX(title, 2f), 120f),
-                Color.Yellow, 0f, Vector2.Zero, 2f, SpriteEffects.None, 0f);
+            DrawSp(title, CenterX(title, 2f), 120f, Color.Yellow, 2f);
 
-            // Menu items
             for (int i = 0; i < items.Length; i++)
             {
                 string prefix = (menuIndex == i) ? "> " : "  ";
                 string label  = prefix + items[i];
                 Color  color  = (menuIndex == i) ? Color.White : Color.Gray;
-                spriteBatch.DrawString(menuFont, label,
-                    new Vector2(CenterX(label), 280f + i * 55f), color);
+                DrawSp(label, CenterX(label), 280f + i * 55f, color);
             }
 
-            // Controls hint
             const string hint = "UP/DOWN to select   ENTER to confirm";
-            spriteBatch.DrawString(menuFont, hint,
-                new Vector2(CenterX(hint), 540f), Color.DimGray);
+            DrawSp(hint, CenterX(hint), 540f, Color.DimGray);
 
             spriteBatch.End();
         }
@@ -322,19 +365,15 @@ namespace Asteroids
             spriteBatch.Begin();
 
             const string title = "GAME OVER";
-            spriteBatch.DrawString(menuFont, title,
-                new Vector2(CenterX(title, 2f), 180f),
-                Color.Red, 0f, Vector2.Zero, 2f, SpriteEffects.None, 0f);
+            DrawSp(title, CenterX(title, 2f), 180f, Color.Red, 2f);
 
             string scoreStr = "SCORE: " + stand.Score;
-            spriteBatch.DrawString(menuFont, scoreStr,
-                new Vector2(CenterX(scoreStr), 290f), Color.White);
+            DrawSp(scoreStr, CenterX(scoreStr), 290f, Color.White);
 
             string prompt = highScoreManager.IsHighScore(stand.Score)
                 ? "NEW HIGH SCORE!  PRESS ENTER"
                 : "PRESS ENTER TO CONTINUE";
-            spriteBatch.DrawString(menuFont, prompt,
-                new Vector2(CenterX(prompt), 350f), Color.LightGray);
+            DrawSp(prompt, CenterX(prompt), 350f, Color.LightGray);
 
             spriteBatch.End();
         }
@@ -344,26 +383,19 @@ namespace Asteroids
             spriteBatch.Begin();
 
             const string title = "NEW HIGH SCORE!";
-            spriteBatch.DrawString(menuFont, title,
-                new Vector2(CenterX(title, 1.5f), 160f),
-                Color.Yellow, 0f, Vector2.Zero, 1.5f, SpriteEffects.None, 0f);
+            DrawSp(title, CenterX(title, 1.5f), 160f, Color.Yellow, 1.5f);
 
             string scoreStr = "SCORE: " + stand.Score;
-            spriteBatch.DrawString(menuFont, scoreStr,
-                new Vector2(CenterX(scoreStr), 250f), Color.White);
+            DrawSp(scoreStr, CenterX(scoreStr), 250f, Color.White);
 
             const string prompt = "ENTER YOUR NAME (max 10 chars):";
-            spriteBatch.DrawString(menuFont, prompt,
-                new Vector2(CenterX(prompt), 310f), Color.LightGray);
+            DrawSp(prompt, CenterX(prompt), 310f, Color.LightGray);
 
             string nameDisplay = playerName.ToString() + "_";
-            spriteBatch.DrawString(menuFont, nameDisplay,
-                new Vector2(CenterX(nameDisplay, 1.5f), 355f),
-                Color.White, 0f, Vector2.Zero, 1.5f, SpriteEffects.None, 0f);
+            DrawSp(nameDisplay, CenterX(nameDisplay, 1.5f), 355f, Color.White, 1.5f);
 
             const string confirm = "ENTER to confirm   ESC to cancel";
-            spriteBatch.DrawString(menuFont, confirm,
-                new Vector2(CenterX(confirm), 540f), Color.DimGray);
+            DrawSp(confirm, CenterX(confirm), 540f, Color.DimGray);
 
             spriteBatch.End();
         }
@@ -373,16 +405,13 @@ namespace Asteroids
             spriteBatch.Begin();
 
             const string title = "HIGH SCORES";
-            spriteBatch.DrawString(menuFont, title,
-                new Vector2(CenterX(title, 2f), 60f),
-                Color.Yellow, 0f, Vector2.Zero, 2f, SpriteEffects.None, 0f);
+            DrawSp(title, CenterX(title, 2f), 60f, Color.Yellow, 2f);
 
             var entries = highScoreManager.Entries;
             if (entries.Count == 0)
             {
                 const string empty = "NO SCORES YET";
-                spriteBatch.DrawString(menuFont, empty,
-                    new Vector2(CenterX(empty), 280f), Color.Gray);
+                DrawSp(empty, CenterX(empty), 280f, Color.Gray);
             }
             else
             {
@@ -392,17 +421,14 @@ namespace Asteroids
                             : (i == 1) ? Color.Silver
                             : Color.LightGray;
 
-                    // Fixed-width columns: rank (2), name (10), score (7)
                     string line = string.Format("{0,2}. {1,-10}  {2,7}",
                         i + 1, entries[i].Name, entries[i].Score);
-                    spriteBatch.DrawString(menuFont, line,
-                        new Vector2(CenterX(line), 160f + i * 35f), c);
+                    DrawSp(line, CenterX(line), 160f + i * 35f, c);
                 }
             }
 
             const string back = "PRESS ENTER TO RETURN";
-            spriteBatch.DrawString(menuFont, back,
-                new Vector2(CenterX(back), 560f), Color.DimGray);
+            DrawSp(back, CenterX(back), 560f, Color.DimGray);
 
             spriteBatch.End();
         }
