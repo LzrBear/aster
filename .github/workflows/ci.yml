@@ -20,7 +20,9 @@ jobs:
           dotnet-version: '9.0.x'
 
       - name: Restore
-        run: dotnet restore Asteroids.sln
+        run: |
+          dotnet restore Asteroids/Asteroids.csproj
+          dotnet restore Asteroids.Tests/Asteroids.Tests.csproj
 
       - name: Build
         run: dotnet build Asteroids/Asteroids.csproj -c Release --no-restore

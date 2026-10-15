@@ -14,7 +14,8 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
-      - run: dotnet restore Asteroids.sln
+      - run: dotnet restore Asteroids/Asteroids.csproj
+      - run: dotnet restore Asteroids.Tests/Asteroids.Tests.csproj
       - run: dotnet build Asteroids/Asteroids.csproj -c Release --no-restore
       - run: dotnet test Asteroids.Tests/Asteroids.Tests.csproj --no-restore
 
