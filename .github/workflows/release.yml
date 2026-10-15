@@ -6,33 +6,32 @@ on:
       - 'v*.*.*'
 
 jobs:
-  release:
+  # ── Shared test gate ────────────────────────────────────────────────────────
+  test:
     runs-on: windows-latest
-    permissions:
-      contents: write   # required to create a GitHub Release
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - run: dotnet restore Asteroids.sln
+      - run: dotnet build Asteroids/Asteroids.csproj -c Release --no-restore
+      - run: dotnet test Asteroids.Tests/Asteroids.Tests.csproj --no-restore
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+  # ── Windows artifacts ───────────────────────────────────────────────────────
+  build-windows:
+    needs: test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
 
-      - name: Restore
-        run: dotnet restore Asteroids.sln
-
-      - name: Build
-        run: dotnet build Asteroids/Asteroids.csproj -c Release --no-restore
-
-      - name: Test
-        run: dotnet test Asteroids.Tests/Asteroids.Tests.csproj --no-restore
-
-      - name: Publish win-x64 (lite, framework-dependent)
+      - name: Publish win-x64 lite (framework-dependent)
         run: dotnet publish Asteroids/Asteroids.csproj /p:PublishProfile=win-x64
 
-      - name: Publish win-x64-full (self-contained, bundles .NET)
+      - name: Publish win-x64 full (self-contained)
         run: dotnet publish Asteroids/Asteroids.csproj /p:PublishProfile=win-x64-full
 
       - name: Extract version
@@ -56,28 +55,121 @@ jobs:
           & $iscc /DAppVersion=${{ steps.ver.outputs.value }} /DFull=1 installer\Asteroids.iss
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-      - name: Package portable zip (self-contained, no installer)
+      - name: Package portable zip (self-contained)
         shell: pwsh
         run: |
           $v = "${{ steps.ver.outputs.value }}"
           Compress-Archive -Path "Asteroids\publish\win-x64-full\*" `
             -DestinationPath "installer\output\Asteroids_${v}_win-x64_portable.zip"
 
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: |
+            installer/output/Asteroids_Setup_${{ steps.ver.outputs.value }}_lite.exe
+            installer/output/Asteroids_Setup_${{ steps.ver.outputs.value }}_full.exe
+            installer/output/Asteroids_${{ steps.ver.outputs.value }}_win-x64_portable.zip
+
+  # ── macOS artifacts ─────────────────────────────────────────────────────────
+  build-macos:
+    needs: test
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Extract version
+        id: ver
+        run: |
+          v="${{ github.ref_name }}"
+          echo "value=${v#v}" >> $GITHUB_OUTPUT
+
+      - name: Publish osx-arm64
+        run: dotnet publish Asteroids/Asteroids.csproj /p:PublishProfile=osx-arm64
+
+      - name: Publish osx-x64
+        run: dotnet publish Asteroids/Asteroids.csproj /p:PublishProfile=osx-x64
+
+      - name: Package macOS zips
+        run: |
+          v="${{ steps.ver.outputs.value }}"
+          cd Asteroids/publish
+          zip -r "../../Asteroids_${v}_osx-arm64.zip" osx-arm64/
+          zip -r "../../Asteroids_${v}_osx-x64.zip"   osx-x64/
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos
+          path: |
+            Asteroids_${{ steps.ver.outputs.value }}_osx-arm64.zip
+            Asteroids_${{ steps.ver.outputs.value }}_osx-x64.zip
+
+  # ── Linux artifacts ──────────────────────────────────────────────────────────
+  build-linux:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Extract version
+        id: ver
+        run: |
+          v="${{ github.ref_name }}"
+          echo "value=${v#v}" >> $GITHUB_OUTPUT
+
+      - name: Publish linux-x64
+        run: dotnet publish Asteroids/Asteroids.csproj /p:PublishProfile=linux-x64
+
+      - name: Package Linux tar.gz
+        run: |
+          v="${{ steps.ver.outputs.value }}"
+          tar -czf "Asteroids_${v}_linux-x64.tar.gz" -C Asteroids/publish/linux-x64 .
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: Asteroids_${{ steps.ver.outputs.value }}_linux-x64.tar.gz
+
+  # ── GitHub Release ───────────────────────────────────────────────────────────
+  release:
+    needs: [build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Extract version
+        id: ver
+        run: |
+          v="${{ github.ref_name }}"
+          echo "value=${v#v}" >> $GITHUB_OUTPUT
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
       - name: Delete existing release if present
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release delete ${{ github.ref_name }} --yes
+        run: gh release delete ${{ github.ref_name }} --yes --repo ${{ github.repository }}
         continue-on-error: true
 
       - name: Create GitHub Release
-        shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $v = "${{ steps.ver.outputs.value }}"
-          gh release create ${{ github.ref_name }} `
-            "installer/output/Asteroids_Setup_${v}_lite.exe" `
-            "installer/output/Asteroids_Setup_${v}_full.exe" `
-            "installer/output/Asteroids_${v}_win-x64_portable.zip" `
-            --title "Asteroids ${{ github.ref_name }}" `
-            --generate-notes
+          v="${{ steps.ver.outputs.value }}"
+          gh release create ${{ github.ref_name }} dist/* \
+            --title "Asteroids ${{ github.ref_name }}" \
+            --generate-notes \
+            --repo ${{ github.repository }}

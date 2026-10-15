@@ -169,7 +169,7 @@ technique Particles
 {
     pass P0
     {
-        VertexShader = compile vs_4_0_level_9_1 ParticleVertexShader();
-        PixelShader = compile ps_4_0_level_9_1 ParticlePixelShader();
+        VertexShader = compile vs_3_0 ParticleVertexShader();
+        PixelShader = compile ps_3_0 ParticlePixelShader();
     }
 }
