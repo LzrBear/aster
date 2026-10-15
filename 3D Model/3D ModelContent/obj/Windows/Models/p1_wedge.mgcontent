@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <SourceFile>c:/Users/Sameer Saini/Desktop/aster/3D Model/3D ModelContent/Models/p1_wedge.x</SourceFile>
+  <SourceTime>2026-10-15T12:27:58.3678864+11:00</SourceTime>
+  <DestFile>c:/Users/Sameer Saini/Desktop/aster/3D Model/3D ModelContent/bin/Windows/Models/p1_wedge.xnb</DestFile>
+  <DestTime>2026-10-15T12:27:58.8626082+11:00</DestTime>
+  <Importer>XImporter</Importer>
+  <ImporterTime>2026-10-08T22:48:48+11:00</ImporterTime>
+  <Processor>ModelProcessor</Processor>
+  <ProcessorTime>2026-10-08T22:48:48+11:00</ProcessorTime>
+  <Parameters>
+    <Key>DefaultEffect</Key>
+    <Value>BasicEffect</Value>
+  </Parameters>
+  <Parameters>
+    <Key>GenerateMipmaps</Key>
+    <Value>True</Value>
+  </Parameters>
+  <Parameters>
+    <Key>PremultiplyTextureAlpha</Key>
+    <Value>True</Value>
+  </Parameters>
+  <Parameters>
+    <Key>ResizeTexturesToPowerOfTwo</Key>
+    <Value>False</Value>
+  </Parameters>
+  <Parameters>
+    <Key>RotationX</Key>
+    <Value>0</Value>
+  </Parameters>
+  <Parameters>
+    <Key>RotationY</Key>
+    <Value>0</Value>
+  </Parameters>
+  <Parameters>
+    <Key>RotationZ</Key>
+    <Value>0</Value>
+  </Parameters>
+  <Parameters>
+    <Key>Scale</Key>
+    <Value>1</Value>
+  </Parameters>
+  <Parameters>
+    <Key>SwapWindingOrder</Key>
+    <Value>False</Value>
+  </Parameters>
+  <Parameters>
+    <Key>TextureFormat</Key>
+    <Value>Color</Value>
+  </Parameters>
+  <Dependencies />
+  <BuildAsset>
+    <string>c:/Users/Sameer Saini/Desktop/aster/3D Model/3D ModelContent/bin/Windows/Textures/wedge_p1_diff_v1_0.xnb</string>
+  </BuildAsset>
+  <BuildOutput />
+</PipelineBuildEvent>

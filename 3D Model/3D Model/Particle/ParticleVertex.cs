@@ -43,10 +43,10 @@ namespace Particle3DSample
                                  VertexElementUsage.Position, 0),
 
             new VertexElement(4, VertexElementFormat.Vector3,
-                                 VertexElementUsage.Position, 1),
+                                 VertexElementUsage.TextureCoordinate, 1),
 
             new VertexElement(16, VertexElementFormat.Vector3,
-                                  VertexElementUsage.Normal, 0),
+                                  VertexElementUsage.TextureCoordinate, 2),
 
             new VertexElement(28, VertexElementFormat.Color,
                                   VertexElementUsage.Color, 0),

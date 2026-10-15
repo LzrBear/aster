@@ -4,6 +4,7 @@
   <Platform>Windows</Platform>
   <Config />
   <SourceFiles>
+    <File>c:/Users/Sameer Saini/Desktop/aster/3D Model/3D ModelContent/Models/p1_wedge.x</File>
     <File>c:/Users/Sameer Saini/Desktop/aster/3D Model/3D ModelContent/Models/asteroid1.x</File>
     <File>c:/Users/Sameer Saini/Desktop/aster/3D Model/3D ModelContent/Models/pea_proj.x</File>
     <File>c:/Users/Sameer Saini/Desktop/aster/3D Model/3D ModelContent/Textures/B1_stars.tga</File>
@@ -23,8 +24,11 @@
     <File>c:/Users/Sameer Saini/Desktop/aster/3D Model/3D ModelContent/Audio/Waves/tx0_fire1.wav</File>
     <File>c:/Users/Sameer Saini/Desktop/aster/3D Model/3D ModelContent/Audio/Music/Hyper Space.mp3</File>
     <File>c:/Users/Sameer Saini/Desktop/aster/3D Model/3D ModelContent/Fonts/Lucida Console.spritefont</File>
+    <File>c:/Users/Sameer Saini/Desktop/aster/3D Model/3D ModelContent/Particle/ParticleEffect.fx</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

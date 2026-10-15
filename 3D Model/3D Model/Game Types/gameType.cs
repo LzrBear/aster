@@ -61,6 +61,7 @@ namespace Asteroids.Game_Types
                 foreach (BasicEffect effect in mesh.Effects)
                 {
                     effect.EnableDefaultLighting();
+                    effect.AmbientLightColor = new Vector3(0.5f, 0.5f, 0.5f);
                     effect.Projection = projectionMatrix;
                     effect.View = viewMatrix;
                 }

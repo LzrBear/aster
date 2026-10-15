@@ -1,0 +1,14 @@
+C:\Users\Sameer Saini\Desktop\aster\fbxconvert\FbxConvert\bin\Debug\net9.0\FbxConvert.exe
+C:\Users\Sameer Saini\Desktop\aster\fbxconvert\FbxConvert\bin\Debug\net9.0\FbxConvert.deps.json
+C:\Users\Sameer Saini\Desktop\aster\fbxconvert\FbxConvert\bin\Debug\net9.0\FbxConvert.runtimeconfig.json
+C:\Users\Sameer Saini\Desktop\aster\fbxconvert\FbxConvert\bin\Debug\net9.0\FbxConvert.dll
+C:\Users\Sameer Saini\Desktop\aster\fbxconvert\FbxConvert\bin\Debug\net9.0\FbxConvert.pdb
+C:\Users\Sameer Saini\Desktop\aster\fbxconvert\FbxConvert\obj\Debug\net9.0\FbxConvert.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Sameer Saini\Desktop\aster\fbxconvert\FbxConvert\obj\Debug\net9.0\FbxConvert.AssemblyInfoInputs.cache
+C:\Users\Sameer Saini\Desktop\aster\fbxconvert\FbxConvert\obj\Debug\net9.0\FbxConvert.AssemblyInfo.cs
+C:\Users\Sameer Saini\Desktop\aster\fbxconvert\FbxConvert\obj\Debug\net9.0\FbxConvert.csproj.CoreCompileInputs.cache
+C:\Users\Sameer Saini\Desktop\aster\fbxconvert\FbxConvert\obj\Debug\net9.0\FbxConvert.dll
+C:\Users\Sameer Saini\Desktop\aster\fbxconvert\FbxConvert\obj\Debug\net9.0\refint\FbxConvert.dll
+C:\Users\Sameer Saini\Desktop\aster\fbxconvert\FbxConvert\obj\Debug\net9.0\FbxConvert.pdb
+C:\Users\Sameer Saini\Desktop\aster\fbxconvert\FbxConvert\obj\Debug\net9.0\FbxConvert.genruntimeconfig.cache
+C:\Users\Sameer Saini\Desktop\aster\fbxconvert\FbxConvert\obj\Debug\net9.0\ref\FbxConvert.dll

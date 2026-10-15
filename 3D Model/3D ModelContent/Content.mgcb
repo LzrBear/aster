@@ -13,8 +13,8 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin Models/p1_wedge.fbx
-/importer:FbxImporter
+#begin Models/p1_wedge.x
+/importer:XImporter
 /processor:ModelProcessor
 /processorParam:DefaultEffect=BasicEffect
 /processorParam:GenerateMipmaps=True
@@ -26,7 +26,7 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Color
-/build:Models/p1_wedge.fbx
+/build:Models/p1_wedge.x
 
 #begin Models/asteroid1.x
 /importer:XImporter

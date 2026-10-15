@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <SourceFile>c:/Users/Sameer Saini/Desktop/aster/3D Model/3D ModelContent/Particle/ParticleEffect.fx</SourceFile>
+  <SourceTime>2026-10-15T12:22:11.9263634+11:00</SourceTime>
+  <DestFile>c:/Users/Sameer Saini/Desktop/aster/3D Model/3D ModelContent/bin/Windows/Particle/ParticleEffect.xnb</DestFile>
+  <DestTime>2026-10-15T12:27:28.6736756+11:00</DestTime>
+  <Importer>EffectImporter</Importer>
+  <ImporterTime>2026-10-08T22:48:48+11:00</ImporterTime>
+  <Processor>EffectProcessor</Processor>
+  <ProcessorTime>2026-10-08T22:48:48+11:00</ProcessorTime>
+  <Parameters>
+    <Key>DebugMode</Key>
+    <Value>Auto</Value>
+  </Parameters>
+  <Dependencies />
+  <BuildAsset />
+  <BuildOutput />
+</PipelineBuildEvent>

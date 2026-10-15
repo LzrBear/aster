@@ -47,7 +47,7 @@ namespace Asteroids
         public asterGame()
         {
             graphics = new GraphicsDeviceManager(this);
-            Content.RootDirectory = "Content";
+            Content.RootDirectory = "3D ModelContent";
 
             particleEffect.initialize(this);
         }
@@ -164,15 +164,15 @@ namespace Asteroids
             spriteBatch.Draw(stars, new Rectangle(0, 0, 800, 600), Color.White);
             spriteBatch.End();
 
-            //Draw the star particle effects
+            // Set camera on all particle systems before drawing
             particleEffect.draw(viewMatrix, projectionMatrix);
+            stand.particleEffect.draw(viewMatrix, projectionMatrix);
 
+            // Draw all components (particles) once with correct cameras
             base.Draw(gameTime);
 
-            //Draw the standard game type
+            //Draw the standard game type (models + score)
             stand.drawGame(GraphicsDevice);
-
-            base.Draw(gameTime);
         }
     }
 }
