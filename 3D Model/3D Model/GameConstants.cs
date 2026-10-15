@@ -46,6 +46,14 @@ namespace Asteroids
         public const float MediumAsteroidScale = 0.5f;
         public const float SmallAsteroidScale  = 0.25f;
 
+        // Size rank used to compute collision crack damage:
+        //   cracks dealt = max(1, attacker_rank - target_rank + 1)
+        // A larger asteroid deals more cracks to a smaller one; a smaller
+        // asteroid can only ever deal 1 crack to a larger one.
+        public const int AsteroidSizeRankLarge  = 3;
+        public const int AsteroidSizeRankMedium = 2;
+        public const int AsteroidSizeRankSmall  = 1;
+
         // ── Bullets ───────────────────────────────────────────────────────────
         public const int   NumBullets          = 30;
         public const float BulletSpeedAdjustment = 100.0f;

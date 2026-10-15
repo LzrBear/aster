@@ -302,12 +302,29 @@ namespace Asteroids.Game_Types
                 AsteroidScale(size));
         }
 
-        // Adds one crack to an asteroid from a collision; splits it when threshold is reached.
-        private void crackAsteroid(int i)
+        // Adds cracks to an asteroid; splits it when threshold is reached.
+        private void crackAsteroid(int i, int cracks = 1)
         {
-            asteroidList[i].cracks++;
+            asteroidList[i].cracks += cracks;
             if (asteroidList[i].cracks >= asteroidList[i].cracksToBreak)
                 splitAsteroid(i);
+        }
+
+        private static int SizeRank(AsteroidSize size)
+        {
+            switch (size)
+            {
+                case AsteroidSize.Large:  return GameConstants.AsteroidSizeRankLarge;
+                case AsteroidSize.Medium: return GameConstants.AsteroidSizeRankMedium;
+                default:                  return GameConstants.AsteroidSizeRankSmall;
+            }
+        }
+
+        // Cracks dealt by attacker to target: larger asteroids do more damage to smaller ones.
+        // A smaller asteroid always deals at least 1 crack (a glancing blow).
+        private static int CollisionCracks(AsteroidSize attacker, AsteroidSize target)
+        {
+            return Math.Max(1, SizeRank(attacker) - SizeRank(target) + 1);
         }
 
         // Splits an asteroid into two of the next size down, spreading ~45° apart.
@@ -500,9 +517,9 @@ namespace Asteroids.Game_Types
                                 soundExplosion2.Play(dist * GameConstants.ExplosionVolume, 0.0f, 0.0f);
                         }
 
-                        // Each asteroid gains one crack; splits when threshold is reached
-                        crackAsteroid(i);
-                        crackAsteroid(j);
+                        // Damage is proportional to the attacker's size relative to the target
+                        crackAsteroid(i, CollisionCracks(asteroidList[j].Size, asteroidList[i].Size));
+                        crackAsteroid(j, CollisionCracks(asteroidList[i].Size, asteroidList[j].Size));
 
                         break; //no need to check against other asteroids
                     }
