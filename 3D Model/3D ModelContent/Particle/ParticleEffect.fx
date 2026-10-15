@@ -34,16 +34,11 @@ float2 EndSize;
 
 
 // Particle texture and sampler.
-texture Texture;
+Texture2D Texture;
 
-sampler Sampler = sampler_state
+SamplerState Sampler
 {
-    Texture = (Texture);
-    
-    MinFilter = Linear;
-    MagFilter = Linear;
-    MipFilter = Point;
-    
+    Filter = MIN_MAG_LINEAR_MIP_POINT;
     AddressU = Clamp;
     AddressV = Clamp;
 };
@@ -65,9 +60,9 @@ struct VertexShaderInput
 // Vertex shader output structure specifies the position and color of the particle.
 struct VertexShaderOutput
 {
-    float4 Position : POSITION0;
+    float4 Position : SV_Position;
     float4 Color : COLOR0;
-    float2 TextureCoordinate : COLOR1;
+    float2 TextureCoordinate : TEXCOORD0;
 };
 
 
@@ -80,7 +75,7 @@ float4 ComputeParticlePosition(float3 position, float3 velocity,
     // Work out how fast the particle should be moving at the end of its life,
     // by applying a constant scaling factor to its starting velocity.
     float endVelocity = startVelocity * EndVelocity;
-    
+
     // Our particles have constant acceleration, so given a starting velocity
     // S and ending velocity E, at time T their velocity should be S + (E-S)*T.
     // The particle position is the sum of this velocity over the range 0 to T.
@@ -90,12 +85,12 @@ float4 ComputeParticlePosition(float3 position, float3 velocity,
     float velocityIntegral = startVelocity * normalizedAge +
                              (endVelocity - startVelocity) * normalizedAge *
                                                              normalizedAge / 2;
-     
+
     position += normalize(velocity) * velocityIntegral * Duration;
-    
+
     // Apply the gravitational force.
     position += Gravity * age * normalizedAge;
-    
+
     // Apply the camera view and projection transforms.
     return mul(mul(float4(position, 1), View), Projection);
 }
@@ -107,10 +102,10 @@ float ComputeParticleSize(float randomValue, float normalizedAge)
     // Apply a random factor to make each particle a slightly different size.
     float startSize = lerp(StartSize.x, StartSize.y, randomValue);
     float endSize = lerp(EndSize.x, EndSize.y, randomValue);
-    
+
     // Compute the actual size based on the age of the particle.
     float size = lerp(startSize, endSize, normalizedAge);
-    
+
     // Project the size into screen coordinates.
     return size * Projection._m11;
 }
@@ -122,31 +117,31 @@ float4 ComputeParticleColor(float4 projectedPosition,
 {
     // Apply a random factor to make each particle a slightly different color.
     float4 color = lerp(MinColor, MaxColor, randomValue);
-    
+
     // Fade the alpha based on the age of the particle. This curve is hard coded
     // to make the particle fade in fairly quickly, then fade out more slowly:
     // plot x*(1-x)*(1-x) for x=0:1 in a graphing program if you want to see what
     // this looks like. The 6.7 scaling factor normalizes the curve so the alpha
     // will reach all the way up to fully solid.
-    
+
     color.a *= normalizedAge * (1-normalizedAge) * (1-normalizedAge) * 6.7;
-   
+
     return color;
 }
 
 
 // Vertex shader helper for computing the rotation of a particle.
 float2x2 ComputeParticleRotation(float randomValue, float age)
-{    
+{
     // Apply a random factor to make each particle rotate at a different speed.
     float rotateSpeed = lerp(RotateSpeed.x, RotateSpeed.y, randomValue);
-    
+
     float rotation = rotateSpeed * age;
 
     // Compute a 2x2 rotation matrix.
     float c = cos(rotation);
     float s = sin(rotation);
-    
+
     return float2x2(c, -s, s, c);
 }
 
@@ -155,13 +150,13 @@ float2x2 ComputeParticleRotation(float randomValue, float age)
 VertexShaderOutput ParticleVertexShader(VertexShaderInput input)
 {
     VertexShaderOutput output;
-    
+
     // Compute the age of the particle.
     float age = CurrentTime - input.Time;
-    
+
     // Apply a random factor to make different particles age at different rates.
     age *= 1 + input.Random.x * DurationRandomness;
-    
+
     // Normalize the age into the range zero to one.
     float normalizedAge = saturate(age / Duration);
 
@@ -173,18 +168,18 @@ VertexShaderOutput ParticleVertexShader(VertexShaderInput input)
     float2x2 rotation = ComputeParticleRotation(input.Random.w, age);
 
     output.Position.xy += mul(input.Corner, rotation) * size * ViewportScale;
-    
+
     output.Color = ComputeParticleColor(output.Position, input.Random.z, normalizedAge);
     output.TextureCoordinate = (input.Corner + 1) / 2;
-    
+
     return output;
 }
 
 
 // Pixel shader for drawing particles.
-float4 ParticlePixelShader(VertexShaderOutput input) : COLOR0
+float4 ParticlePixelShader(VertexShaderOutput input) : SV_Target0
 {
-    return tex2D(Sampler, input.TextureCoordinate) * input.Color;
+    return Texture.Sample(Sampler, input.TextureCoordinate) * input.Color;
 }
 
 
@@ -193,7 +188,7 @@ technique Particles
 {
     pass P0
     {
-        VertexShader = compile vs_2_0 ParticleVertexShader();
-        PixelShader = compile ps_2_0 ParticlePixelShader();
+        VertexShader = compile vs_4_0_level_9_1 ParticleVertexShader();
+        PixelShader = compile ps_4_0_level_9_1 ParticlePixelShader();
     }
 }

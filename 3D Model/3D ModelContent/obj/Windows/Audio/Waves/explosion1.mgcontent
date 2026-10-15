@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <SourceFile>c:/Users/Sameer Saini/Desktop/aster/3D Model/3D ModelContent/Audio/Waves/explosion1.wav</SourceFile>
+  <SourceTime>2011-02-05T15:50:18+11:00</SourceTime>
+  <DestFile>c:/Users/Sameer Saini/Desktop/aster/3D Model/3D ModelContent/bin/Windows/Audio/Waves/explosion1.xnb</DestFile>
+  <DestTime>2026-10-15T12:21:07.5589577+11:00</DestTime>
+  <Importer>WavImporter</Importer>
+  <ImporterTime>2026-10-08T22:48:48+11:00</ImporterTime>
+  <Processor>SoundEffectProcessor</Processor>
+  <ProcessorTime>2026-10-08T22:48:48+11:00</ProcessorTime>
+  <Parameters>
+    <Key>Quality</Key>
+    <Value>Best</Value>
+  </Parameters>
+  <Dependencies />
+  <BuildAsset />
+  <BuildOutput />
+</PipelineBuildEvent>
