@@ -109,13 +109,34 @@ chmod +x Asteroids
 ./Asteroids
 ```
 
-## Creating a Windows Installer (manual)
+## Building release packages (manual)
 
-1. Publish a self-contained win-x64 build:
-   ```bash
-   dotnet publish Asteroids/Asteroids.csproj /p:PublishProfile=win-x64
-   ```
-2. Install [Inno Setup 6](https://jrsoftware.org/isdl.php) and compile `installer/Asteroids.iss`. The installer packages the publish output into a standard Windows setup wizard.
+### Windows
+
+```bash
+# Framework-dependent (requires .NET 9 runtime)
+dotnet publish Asteroids/Asteroids.csproj /p:PublishProfile=win-x64
+
+# Self-contained
+dotnet publish Asteroids/Asteroids.csproj /p:PublishProfile=win-x64-full
+```
+
+To produce an installer, install [Inno Setup 6](https://jrsoftware.org/isdl.php) and compile `installer/Asteroids.iss`. For a self-contained installer pass `/DFull=1`.
+
+### macOS
+
+```bash
+dotnet publish Asteroids/Asteroids.GL.csproj /p:PublishProfile=osx-arm64   # Apple Silicon
+dotnet publish Asteroids/Asteroids.GL.csproj /p:PublishProfile=osx-x64     # Intel
+```
+
+### Linux
+
+```bash
+dotnet publish Asteroids/Asteroids.GL.csproj /p:PublishProfile=linux-x64
+```
+
+Output lands in `Asteroids/publish/<profile>/`.
 
 ## Project Structure
 
