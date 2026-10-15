@@ -33,6 +33,7 @@ namespace Asteroids.Game_Types
         //score
         int score = 0;
         Vector2 scorePosition = new Vector2(100, 50);
+        float _spaceWidth; // set after font load; used for HUD spacing
 
         //Lives
         Vector2 livesPosition = new Vector2(100, 70);
@@ -109,6 +110,7 @@ namespace Asteroids.Game_Types
 
             //Load the fonts
             kootenay = game.Content.Load<SpriteFont>("Fonts/Lucida Console");
+            _spaceWidth = kootenay.MeasureString("M").X * 0.5f;
 
             //Initialize the particle Effects
             particleEffect.initialize(game);
@@ -386,7 +388,7 @@ namespace Asteroids.Game_Types
                     ship.Position = Vector3.Zero;
                     ship.lives--;
                     //resetAster(i);
-                    score -= GameConstants.DeathPenalty;
+                    score = Math.Max(0, score - GameConstants.DeathPenalty);
                     break; //exit the loop
                 }
 
@@ -521,7 +523,7 @@ namespace Asteroids.Game_Types
                             bulletList[i].position = ship.Position + (1000 * bulletList[i].direction);
                             bulletList[i].isActive = true;
                             soundWeaponsFire.Play(GameConstants.WeaponVolume, 0f, 0f);
-                            score -= GameConstants.ShotPenalty;
+                            score = Math.Max(0, score - GameConstants.ShotPenalty);
                             break; //exit loop
                         }
                     }
@@ -541,12 +543,33 @@ namespace Asteroids.Game_Types
                 ship.Velocity = Vector3.Zero;
                 ship.Rotation = 0.0f;
                 soundHyperspaceActivation.Play(GameConstants.HyperspaceVolume, 0f, 0f);
-                score -= GameConstants.WarpPenalty;
+                score = Math.Max(0, score - GameConstants.WarpPenalty);
                 ship.isActive = true;
             }
 
             lastGState = currentGamePadSate;
             lastKState = currentKeyState;
+        }
+
+        // Space-aware draw: splits on ' ' and inserts _spaceWidth between segments.
+        void DrawSpHud(string text, Vector2 pos, Color color)
+        {
+            float curX = pos.X;
+            int segStart = 0;
+            for (int i = 0; i <= text.Length; i++)
+            {
+                if (i == text.Length || text[i] == ' ')
+                {
+                    if (i > segStart)
+                    {
+                        string seg = text.Substring(segStart, i - segStart);
+                        spriteBatch.DrawString(kootenay, seg, new Vector2(curX, pos.Y), color);
+                        curX += kootenay.MeasureString(seg).X;
+                    }
+                    if (i < text.Length) curX += _spaceWidth;
+                    segStart = i + 1;
+                }
+            }
         }
 
         public override void drawGame(GraphicsDevice graphics)
@@ -594,12 +617,10 @@ namespace Asteroids.Game_Types
                 }
             }
 
-            //Draw the score
+            //Draw the score / lives HUD using space-aware helper
             spriteBatch.Begin();
-            spriteBatch.DrawString(kootenay, "Score: " + score,
-                                   scorePosition, Color.LightGreen);
-            spriteBatch.DrawString(kootenay, "Lives: " + ship.lives,
-                                   livesPosition, Color.LightGreen);
+            DrawSpHud("Score: " + score, scorePosition, Color.LightGreen);
+            DrawSpHud("Lives: " + ship.lives, livesPosition, Color.LightGreen);
             spriteBatch.End();
         }
 
