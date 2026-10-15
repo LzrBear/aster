@@ -226,7 +226,7 @@ namespace Asteroids.Game_Types
 
             // Rotate the inward normal by a random spread of ±60° so asteroids approach
             // at various angles but always move toward the center of the playfield.
-            float spread = (float)((random.NextDouble() * 2 - 1) * MathHelper.PiOver3);
+            float spread = (float)((random.NextDouble() * 2 - 1) * Math.PI / 3);
             Vector3 dir = Vector3.Transform(inward, Matrix.CreateRotationZ(spread));
             asteroidList[i].direction.X = dir.X;
             asteroidList[i].direction.Y = dir.Y;
