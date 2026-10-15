@@ -264,7 +264,7 @@ namespace Asteroids.Game_Types
 
             if (currentSize == AsteroidSize.Small)
             {
-                resetAster(i);
+                asteroidList[i].isActive = false;
                 return GameConstants.SmallAsteroidBonus;
             }
 
@@ -359,7 +359,7 @@ namespace Asteroids.Game_Types
 
             if (currentSize == AsteroidSize.Small)
             {
-                resetAster(i);
+                asteroidList[i].isActive = false;
                 return;
             }
 

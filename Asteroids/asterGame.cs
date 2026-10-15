@@ -313,6 +313,9 @@ namespace Asteroids
 
             particleEffect.draw(viewMatrix, projectionMatrix);
 
+            // Draw star particles before 3D models so they appear behind everything.
+            particleEffect.DrawStarsEarly(gameTime);
+
             bool gameVisible = stand.HasInitialized &&
                 (currentState == GameState.Playing  ||
                  currentState == GameState.GameOver  ||
@@ -325,6 +328,9 @@ namespace Asteroids
             }
 
             base.Draw(gameTime);
+
+            // Restore stars visibility so they are drawn again next frame.
+            particleEffect.RestoreStars();
 
             switch (currentState)
             {

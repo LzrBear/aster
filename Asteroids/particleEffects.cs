@@ -69,6 +69,19 @@ namespace Asteroids
             starsParticles.SetCamera(viewMatrix, projectionMatrix);
         }
 
+        // Draw star particles now (before 3D models) and hide them so base.Draw() skips them.
+        public void DrawStarsEarly(GameTime gameTime)
+        {
+            starsParticles.Draw(gameTime);
+            starsParticles.Visible = false;
+        }
+
+        // Restore star visibility after base.Draw() so the next frame draws them again.
+        public void RestoreStars()
+        {
+            starsParticles.Visible = true;
+        }
+
         Vector3 tmp = new Vector3();
         public void UpdateThrusterFire(Ship ship)
         {
