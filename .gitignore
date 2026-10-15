@@ -1,12 +1,6 @@
-# Build outputs
-bin/
-obj/
-
-# MonoGame content pipeline intermediates
-*/*/obj/
-*/*/*/obj/
-3D Model/3D ModelContent/bin/
-3D Model/3D ModelContent/obj/
+# Build outputs (matches bin/ and obj/ at any depth)
+**/bin/
+**/obj/
 
 # Visual Studio
 .vs/
