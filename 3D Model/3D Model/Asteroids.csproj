@@ -9,6 +9,8 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <StartupObject>Asteroids.Program</StartupObject>
+    <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
+    <NoWarn>$(NoWarn);CA1416;NETSDK1206</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
