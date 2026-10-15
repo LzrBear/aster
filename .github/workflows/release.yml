@@ -109,6 +109,13 @@ jobs:
       - name: Publish osx-x64
         run: dotnet publish Asteroids/Asteroids.GL.csproj /p:PublishProfile=osx-x64 /p:SkipMGCBBuild=true
 
+      - name: Copy pre-built content into publish dirs
+        run: |
+          mkdir -p Asteroids/publish/osx-arm64/AsteroidsContent
+          mkdir -p Asteroids/publish/osx-x64/AsteroidsContent
+          cp -r AsteroidsContent/bin/DesktopGL/Content/. Asteroids/publish/osx-arm64/AsteroidsContent/
+          cp -r AsteroidsContent/bin/DesktopGL/Content/. Asteroids/publish/osx-x64/AsteroidsContent/
+
       - name: Package macOS zips
         run: |
           v="${{ steps.ver.outputs.value }}"
@@ -148,6 +155,11 @@ jobs:
 
       - name: Publish linux-x64
         run: dotnet publish Asteroids/Asteroids.GL.csproj /p:PublishProfile=linux-x64 /p:SkipMGCBBuild=true
+
+      - name: Copy pre-built content into publish dir
+        run: |
+          mkdir -p Asteroids/publish/linux-x64/AsteroidsContent
+          cp -r AsteroidsContent/bin/DesktopGL/Content/. Asteroids/publish/linux-x64/AsteroidsContent/
 
       - name: Package Linux tar.gz
         run: |
