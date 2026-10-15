@@ -39,7 +39,7 @@ namespace Asteroids
         public const float InitialSpeedMultiplier  = 0.25f; // fraction of full speed at game start
         public const float AsteroidSpawnInterval   = 4f;    // seconds between spawn-check ticks
         public const float AsteroidSpeedAdjustment = 5.0f;
-        public const float AsteroidSplitSeparation = 2000f; // offset between split fragments
+        public const float AsteroidSplitSeparation = 500f;  // offset between split fragments (must stay inside smoke cloud)
 
         // Crack thresholds — hits before an asteroid splits (per size)
         public const int LargeCracksMin  = 3;
