@@ -27,7 +27,10 @@ namespace Asteroids
 
         public HighScoreManager(string baseDir = null)
         {
-            _baseDir = baseDir ?? AppDomain.CurrentDomain.BaseDirectory;
+            _baseDir = baseDir ?? Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                GameConstants.SaveDataFolder);
+            Directory.CreateDirectory(_baseDir);
             Load();
         }
 
@@ -125,11 +128,20 @@ namespace Asteroids
                 mac = hmac.ComputeHash(ivAndCipher);
 
             // Write: IV | HMAC | ciphertext
-            using (var fs = File.Create(FilePath))
+            try
             {
-                fs.Write(iv,         0, iv.Length);
-                fs.Write(mac,        0, mac.Length);
-                fs.Write(ciphertext, 0, ciphertext.Length);
+                Directory.CreateDirectory(_baseDir);
+                using (var fs = File.Create(FilePath))
+                {
+                    fs.Write(iv,         0, iv.Length);
+                    fs.Write(mac,        0, mac.Length);
+                    fs.Write(ciphertext, 0, ciphertext.Length);
+                }
+            }
+            catch
+            {
+                // If the file cannot be written (e.g. permissions) the score is lost
+                // this session but the game continues rather than crashing.
             }
         }
 

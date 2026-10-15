@@ -189,10 +189,10 @@ namespace Asteroids
                 return;
             }
 
-            if (PressedKey(ks, Keys.Up) || PressedBtn(gs, Buttons.DPadUp))
+            if (PressedKey(ks, Keys.Up) || PressedKey(ks, Keys.W) || PressedBtn(gs, Buttons.DPadUp))
                 menuIndex = (menuIndex + 2) % 3;
 
-            if (PressedKey(ks, Keys.Down) || PressedBtn(gs, Buttons.DPadDown))
+            if (PressedKey(ks, Keys.Down) || PressedKey(ks, Keys.S) || PressedBtn(gs, Buttons.DPadDown))
                 menuIndex = (menuIndex + 1) % 3;
 
             if (PressedKey(ks, Keys.Enter) || PressedKey(ks, Keys.Space) || PressedBtn(gs, Buttons.A))

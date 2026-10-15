@@ -101,6 +101,7 @@ namespace Asteroids
         // ── High scores ───────────────────────────────────────────────────────
         public const int    MaxHighScores      = 10;
         public const string HighScoresFile     = "highscores.dat";
+        public const string SaveDataFolder    = "Asteroids"; // subdirectory under %APPDATA%
         public const char   HighScoreSeparator = '|';
 
         // AES-256 key for encrypting the high scores file.
@@ -198,7 +199,7 @@ namespace Asteroids
         public const string UiMenuPlay         = "PLAY";
         public const string UiMenuHighScores   = "HIGH SCORES";
         public const string UiMenuQuit         = "QUIT";
-        public const string UiHintMenuNav      = "UP/DOWN to select   ENTER to confirm";
+        public const string UiHintMenuNav      = "W/S or UP/DOWN to select   ENTER to confirm";
         public const string UiTitleGameOver    = "GAME OVER";
         public const string UiTitleHighScore   = "NEW HIGH SCORE!";
         public const string UiPromptHighScore  = "NEW HIGH SCORE!  PRESS ENTER";
