@@ -46,24 +46,21 @@ ArchitecturesAllowed=x64compatible
 
 #ifndef Full
 [Code]
-// Check that .NET 9 Desktop Runtime (x64) is installed.
-// The .NET installer creates version subkeys under:
-//   SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedfx\Microsoft.WindowsDesktop.App\9.x.x
+// Check that .NET 9 Desktop Runtime (x64) is installed by looking for a
+// versioned directory under C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\9.*
+// This is more reliable than registry checks, which vary between .NET releases.
 function IsDotNet9DesktopInstalled: Boolean;
 var
-  KeyPath: String;
-  Names: TArrayOfString;
-  I: Integer;
+  BasePath: String;
+  FindRec: TFindRec;
 begin
   Result := False;
-  KeyPath := 'SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedfx\Microsoft.WindowsDesktop.App';
-  if RegGetSubkeyNames(HKLM64, KeyPath, Names) then
-    for I := 0 to GetArrayLength(Names) - 1 do
-      if Copy(Names[I], 1, 2) = '9.' then
-      begin
-        Result := True;
-        Exit;
-      end;
+  BasePath := ExpandConstant('{commonpf64}') + '\dotnet\shared\Microsoft.WindowsDesktop.App';
+  if FindFirst(BasePath + '\9.*', FindRec) then
+  begin
+    Result := True;
+    FindClose(FindRec);
+  end;
 end;
 
 function InitializeSetup: Boolean;
