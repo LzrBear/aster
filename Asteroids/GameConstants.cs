@@ -84,7 +84,13 @@ namespace Asteroids
         public const int   RespawnFlashRate              = 8;     // flashes per second
         public const float ExplosionDistanceFactor       = 2000f; // normalises sound volume by distance
         public const float ExplosionSoundThreshold       = 1.0f;  // max normalised distance for audible explosion
-        public const float StarAdditiveBoost             = 0.9f;  // opacity of the additive star pass
+#if DESKTOPGL
+        public const float StarAdditiveBoost  = 0.3f;  // lower on OpenGL — additive blends in linear space
+        public const bool  EnableMultiSampling = false;
+#else
+        public const float StarAdditiveBoost  = 0.9f;
+        public const bool  EnableMultiSampling = true;
+#endif
         public const float FontSpaceWidthScale           = 0.5f;  // space glyph width = M-width * this
         public const int   MaxNameLength                 = 10;    // max characters in a player name
         public const string DefaultPlayerName            = "???"; // fallback when name left blank
@@ -152,6 +158,7 @@ namespace Asteroids
         public const int numStars = 10;
 
         // ── Content paths ─────────────────────────────────────────────────────
+        public const string IconBitmapFile = "icon.bmp"; // shipped alongside the exe; used by DesktopGL to set SDL window icon
         public const string ContentRoot    = "AsteroidsContent";
         public const string FontMain       = "Fonts/Lucida Console";
         public const string TextureStars   = "Textures/B1_stars";

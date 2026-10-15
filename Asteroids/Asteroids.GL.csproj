@@ -9,7 +9,9 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <StartupObject>Asteroids.Program</StartupObject>
-    <NoWarn>$(NoWarn);NETSDK1206</NoWarn>
+    <NoWarn>$(NoWarn);CA1416;NETSDK1206</NoWarn>
+    <ApplicationIcon>game.ico</ApplicationIcon>
+    <DefineConstants>$(DefineConstants);DESKTOPGL</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,6 +21,12 @@
 
   <ItemGroup>
     <MonoGameContentReference Include="..\AsteroidsContent\Content.mgcb" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="icon.bmp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

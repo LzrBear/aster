@@ -26,6 +26,74 @@ namespace Asteroids
         // Background
         Texture2D stars;
         particleEffects particleEffect = new particleEffects();
+#if DESKTOPGL
+        readonly SamplerState _uiSampler = SamplerState.LinearClamp;
+
+        // Sets the SDL window icon by looking up SDL2 functions at runtime via
+        // GetModuleHandleW/GetProcAddress (SDL2.dll is already loaded by MonoGame).
+        // Uses Window.Handle (SDL_Window*) directly — no FindWindow needed.
+        // Silently skipped on macOS / Linux.
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
+        static extern IntPtr GetModuleHandleW(string moduleName);
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
+        static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
+
+        [System.Runtime.InteropServices.UnmanagedFunctionPointer(System.Runtime.InteropServices.CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
+        delegate IntPtr SDL_RWFromFileProc(string file, string mode);
+        [System.Runtime.InteropServices.UnmanagedFunctionPointer(System.Runtime.InteropServices.CallingConvention.Cdecl)]
+        delegate IntPtr SDL_LoadBMPProc(IntPtr src, int freesrc);
+        [System.Runtime.InteropServices.UnmanagedFunctionPointer(System.Runtime.InteropServices.CallingConvention.Cdecl)]
+        delegate void SDL_SetWindowIconProc(IntPtr window, IntPtr icon);
+        [System.Runtime.InteropServices.UnmanagedFunctionPointer(System.Runtime.InteropServices.CallingConvention.Cdecl)]
+        delegate void SDL_FreeSurfaceProc(IntPtr surface);
+
+        bool _iconApplied = false;
+
+        void ApplyWindowIcon()
+        {
+            if (!OperatingSystem.IsWindows()) return;
+            var log = new System.Text.StringBuilder();
+            try
+            {
+                string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? ".";
+                log.AppendLine($"exeDir: {exeDir}");
+
+                IntPtr sdl2 = GetModuleHandleW("SDL2.dll");
+                log.AppendLine($"GetModuleHandleW(SDL2.dll): {sdl2}");
+                if (sdl2 == IntPtr.Zero) return;
+
+                IntPtr pRW   = GetProcAddress(sdl2, "SDL_RWFromFile");
+                IntPtr pBMP  = GetProcAddress(sdl2, "SDL_LoadBMP_RW");
+                IntPtr pSet  = GetProcAddress(sdl2, "SDL_SetWindowIcon");
+                IntPtr pFree = GetProcAddress(sdl2, "SDL_FreeSurface");
+                log.AppendLine($"pRW={pRW} pBMP={pBMP} pSet={pSet} pFree={pFree}");
+                if (pRW == IntPtr.Zero || pBMP == IntPtr.Zero || pSet == IntPtr.Zero || pFree == IntPtr.Zero) return;
+
+                var rwFromFile  = System.Runtime.InteropServices.Marshal.GetDelegateForFunctionPointer<SDL_RWFromFileProc>(pRW);
+                var loadBMP     = System.Runtime.InteropServices.Marshal.GetDelegateForFunctionPointer<SDL_LoadBMPProc>(pBMP);
+                var setIcon     = System.Runtime.InteropServices.Marshal.GetDelegateForFunctionPointer<SDL_SetWindowIconProc>(pSet);
+                var freeSurface = System.Runtime.InteropServices.Marshal.GetDelegateForFunctionPointer<SDL_FreeSurfaceProc>(pFree);
+
+                string path = System.IO.Path.Combine(exeDir, GameConstants.IconBitmapFile);
+                log.AppendLine($"bmp path: {path} exists={System.IO.File.Exists(path)}");
+                if (!System.IO.File.Exists(path)) return;
+
+                IntPtr rw = rwFromFile(path, "rb");
+                log.AppendLine($"rw: {rw}");
+                if (rw == IntPtr.Zero) return;
+                IntPtr surface = loadBMP(rw, 1);
+                log.AppendLine($"surface: {surface}  Window.Handle: {Window.Handle}");
+                if (surface == IntPtr.Zero) return;
+                setIcon(Window.Handle, surface);
+                freeSurface(surface);
+                log.AppendLine("done");
+            }
+            catch (Exception ex) { log.AppendLine($"EXCEPTION: {ex}"); }
+            finally { System.IO.File.WriteAllText(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop), "icon_debug.txt"), log.ToString()); }
+        }
+#else
+        readonly SamplerState _uiSampler = SamplerState.AnisotropicClamp;
+#endif
 
         // Music
         Song Music_default;
@@ -50,7 +118,7 @@ namespace Asteroids
         public asterGame()
         {
             graphics = new GraphicsDeviceManager(this);
-            graphics.PreferMultiSampling = true;
+            graphics.PreferMultiSampling = GameConstants.EnableMultiSampling;
             graphics.PreferredBackBufferWidth  = GameConstants.WindowWidth;
             graphics.PreferredBackBufferHeight = GameConstants.WindowHeight;
             Content.RootDirectory = GameConstants.ContentRoot;
@@ -164,6 +232,9 @@ namespace Asteroids
             KeyboardState ks = Keyboard.GetState();
             GamePadState  gs = GamePad.GetState(PlayerIndex.One);
 
+#if DESKTOPGL
+            if (!_iconApplied) { ApplyWindowIcon(); _iconApplied = true; }
+#endif
             particleEffect.UpdateStars();
 
             switch (currentState)
@@ -367,7 +438,7 @@ namespace Asteroids
         {
             string[] items = { GameConstants.UiMenuPlay, GameConstants.UiMenuHighScores, GameConstants.UiMenuQuit };
 
-            spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.AnisotropicClamp);
+            spriteBatch.Begin(SpriteSortMode.Deferred, null, _uiSampler);
 
             DrawSp(GameConstants.UiTitleGame,
                 CenterX(GameConstants.UiTitleGame, GameConstants.UiTitleScale),
@@ -390,7 +461,7 @@ namespace Asteroids
 
         void DrawGameOver()
         {
-            spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.AnisotropicClamp);
+            spriteBatch.Begin(SpriteSortMode.Deferred, null, _uiSampler);
 
             DrawSp(GameConstants.UiTitleGameOver,
                 CenterX(GameConstants.UiTitleGameOver, GameConstants.UiTitleScale),
@@ -409,7 +480,7 @@ namespace Asteroids
 
         void DrawEnterName()
         {
-            spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.AnisotropicClamp);
+            spriteBatch.Begin(SpriteSortMode.Deferred, null, _uiSampler);
 
             DrawSp(GameConstants.UiTitleHighScore,
                 CenterX(GameConstants.UiTitleHighScore, GameConstants.UiSubtitleScale),
@@ -436,7 +507,7 @@ namespace Asteroids
 
         void DrawHighScores()
         {
-            spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.AnisotropicClamp);
+            spriteBatch.Begin(SpriteSortMode.Deferred, null, _uiSampler);
 
             DrawSp(GameConstants.UiMenuHighScores,
                 CenterX(GameConstants.UiMenuHighScores, GameConstants.UiTitleScale),
