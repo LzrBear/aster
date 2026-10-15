@@ -26,10 +26,18 @@ namespace Asteroids
         public const int   lives    = 3;
 
         // ── Asteroids ─────────────────────────────────────────────────────────
-        public const int   NumAsteroids        = 60;       // pool size (allows for splits)
-        public const int   NumInitialAsteroids = 20;       // how many start active
-        public const float AsteroidMinSpeed    = 100.0f;
-        public const float AsteroidMaxSpeed    = 300.0f;
+        public const int   NumAsteroids           = 60;    // pool size (allows for splits)
+        public const int   NumInitialAsteroids    = 20;    // target count at full difficulty
+        public const int   NumInitialAsteroidsMin = 3;     // count at game start
+        public const float AsteroidMinSpeed       = 100.0f;
+        public const float AsteroidMaxSpeed       = 300.0f;
+
+        // ── Difficulty progression ────────────────────────────────────────────
+        // Asteroid count and speed scale linearly from their Min/Initial values
+        // up to full difficulty over DifficultyRampDuration seconds.
+        public const float DifficultyRampDuration  = 120f;  // seconds to reach full difficulty
+        public const float InitialSpeedMultiplier  = 0.25f; // fraction of full speed at game start
+        public const float AsteroidSpawnInterval   = 4f;    // seconds between spawn-check ticks
         public const float AsteroidSpeedAdjustment = 5.0f;
         public const float AsteroidSplitSeparation = 2000f; // offset between split fragments
 

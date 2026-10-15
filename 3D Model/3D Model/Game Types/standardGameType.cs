@@ -38,6 +38,11 @@ namespace Asteroids.Game_Types
         // Invincibility after respawn
         float respawnInvincibleTimer = 0f;  // counts down from 3 → 0
 
+        // Difficulty progression
+        float gameElapsed          = 0f;
+        float currentSpeedMult     = GameConstants.InitialSpeedMultiplier;
+        float asteroidSpawnTimer   = 0f;
+
         //Lives
         Vector2 livesPosition = new Vector2(100, 70);
 
@@ -180,6 +185,9 @@ namespace Asteroids.Game_Types
                 bulletList[i].isActive = false;
             soundEngineInstance.Stop();
             respawnInvincibleTimer = 0f;
+            gameElapsed        = 0f;
+            currentSpeedMult   = GameConstants.InitialSpeedMultiplier;
+            asteroidSpawnTimer = 0f;
             ResetAsteroids();
             FlushInput();
         }
@@ -197,7 +205,7 @@ namespace Asteroids.Game_Types
         {
             for (int i = 0; i < GameConstants.NumAsteroids; i++)
                 asteroidList[i].isActive = false;
-            for (int i = 0; i < GameConstants.NumInitialAsteroids; i++)
+            for (int i = 0; i < GameConstants.NumInitialAsteroidsMin; i++)
                 resetAster(i);
         }
 
@@ -239,8 +247,8 @@ namespace Asteroids.Game_Types
             Vector3 dir = Vector3.Transform(inward, Matrix.CreateRotationZ(spread));
             asteroidList[i].direction.X = dir.X;
             asteroidList[i].direction.Y = dir.Y;
-            asteroidList[i].speed = GameConstants.AsteroidMinSpeed +
-                (float)random.NextDouble() * GameConstants.AsteroidMaxSpeed;
+            asteroidList[i].speed = (GameConstants.AsteroidMinSpeed +
+                (float)random.NextDouble() * GameConstants.AsteroidMaxSpeed) * currentSpeedMult;
             asteroidList[i].Size = AsteroidSize.Large;
             asteroidList[i].isActive = true;
             asteroidList[i].cracks = 0;
@@ -287,8 +295,8 @@ namespace Asteroids.Game_Types
         {
             asteroidList[slot].position = position;
             asteroidList[slot].direction = direction;
-            asteroidList[slot].speed = GameConstants.AsteroidMinSpeed +
-                (float)random.NextDouble() * GameConstants.AsteroidMaxSpeed;
+            asteroidList[slot].speed = (GameConstants.AsteroidMinSpeed +
+                (float)random.NextDouble() * GameConstants.AsteroidMaxSpeed) * currentSpeedMult;
             asteroidList[slot].Size = size;
             asteroidList[slot].isActive = true;
             asteroidList[slot].cracks = 0;
@@ -387,6 +395,35 @@ namespace Asteroids.Game_Types
 
             if (respawnInvincibleTimer > 0f)
                 respawnInvincibleTimer = Math.Max(0f, respawnInvincibleTimer - timeDelta);
+
+            // ── Difficulty progression ────────────────────────────────────────
+            gameElapsed += timeDelta;
+            float difficultyFactor = Math.Min(1f, gameElapsed / GameConstants.DifficultyRampDuration);
+            currentSpeedMult = MathHelper.Lerp(GameConstants.InitialSpeedMultiplier, 1f, difficultyFactor);
+
+            // Periodically spawn an asteroid if we are below the current target count
+            int targetCount = (int)MathHelper.Lerp(
+                GameConstants.NumInitialAsteroidsMin,
+                GameConstants.NumInitialAsteroids,
+                difficultyFactor);
+
+            asteroidSpawnTimer -= timeDelta;
+            if (asteroidSpawnTimer <= 0f)
+            {
+                asteroidSpawnTimer = GameConstants.AsteroidSpawnInterval;
+                int activeCount = 0;
+                for (int idx = 0; idx < GameConstants.NumAsteroids; idx++)
+                    if (asteroidList[idx].isActive) activeCount++;
+
+                if (activeCount < targetCount)
+                {
+                    for (int idx = 0; idx < GameConstants.NumAsteroids; idx++)
+                    {
+                        if (!asteroidList[idx].isActive) { resetAster(idx); break; }
+                    }
+                }
+            }
+            // ─────────────────────────────────────────────────────────────────
 
             //Update Input
             updateGameInput();
