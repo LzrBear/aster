@@ -63,6 +63,12 @@ jobs:
           Compress-Archive -Path "Asteroids\publish\win-x64-full\*" `
             -DestinationPath "installer\output\Asteroids_${v}_win-x64_portable.zip"
 
+      - name: Delete existing release if present
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release delete ${{ github.ref_name }} --yes
+        continue-on-error: true
+
       - name: Create GitHub Release
         shell: pwsh
         env:
