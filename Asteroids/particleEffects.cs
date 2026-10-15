@@ -30,32 +30,32 @@ namespace Asteroids
         {
             //Thurster particle effect
             thrusterParticles = new thrusterParticleSystem(game, game.Content);
-            thrusterParticles.DrawOrder = 500;
+            thrusterParticles.DrawOrder = GameConstants.DrawOrderThruster;
             game.Components.Add(thrusterParticles);
 
             //Bullet particle effect
             bulletParticles = new bulletParticleSystem(game, game.Content);
-            bulletParticles.DrawOrder = 400;
+            bulletParticles.DrawOrder = GameConstants.DrawOrderBullets;
             game.Components.Add(bulletParticles);
 
             //Explosion Particle effect
             explosionParticles = new explosionParticleSystem(game, game.Content);
-            explosionParticles.DrawOrder = 300;
+            explosionParticles.DrawOrder = GameConstants.DrawOrderExplosion;
             game.Components.Add(explosionParticles);
 
             //Explosion Sparks particle effect
             sparksParticles = new sparksParticleSystem(game, game.Content);
-            sparksParticles.DrawOrder = 100;
+            sparksParticles.DrawOrder = GameConstants.DrawOrderSparks;
             game.Components.Add(sparksParticles);
 
             //Explosion Smoke particle effect
             smokeParticles = new smokeParticleSystem(game, game.Content);
-            smokeParticles.DrawOrder = 200;
+            smokeParticles.DrawOrder = GameConstants.DrawOrderSmoke;
             game.Components.Add(smokeParticles);
 
             //Star Particles
             starsParticles = new starsParticleSystem(game, game.Content);
-            starsParticles.DrawOrder = 600;
+            starsParticles.DrawOrder = GameConstants.DrawOrderStars;
             game.Components.Add(starsParticles);
         }
 

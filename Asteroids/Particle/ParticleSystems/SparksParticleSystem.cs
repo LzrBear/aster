@@ -59,6 +59,9 @@ namespace Particle3DSample
             settings.MaxEndSize = 350;
 
             settings.BlendState = BlendState.Additive;
+
+            // Always overdraw 3D models so fragments appear behind the explosion cloud.
+            settings.DepthStencilState = DepthStencilState.None;
         }
     }
 }

@@ -70,5 +70,21 @@ namespace Asteroids.Tests
         {
             Assert.True(GameConstants.MaxHighScores > 0);
         }
+
+        [Fact]
+        public void ShipMaxSpeed_IsAtLeast5xMaxAsteroidSpeed()
+        {
+            // Asteroid max speed in units/frame at 60 fps.
+            // Ship cap must be at least 5× that.
+            float maxAsteroidFrameSpeed = GameConstants.AsteroidMaxSpeed
+                * GameConstants.AsteroidSpeedAdjustment / 60f;
+            Assert.True(GameConstants.ShipMaxSpeed >= 5f * maxAsteroidFrameSpeed);
+        }
+
+        [Fact]
+        public void SpawnImmunityDuration_IsThreeSeconds()
+        {
+            Assert.Equal(3.0f, GameConstants.AsteroidSpawnImmunityDuration);
+        }
     }
 }

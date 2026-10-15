@@ -387,7 +387,7 @@ namespace Particle3DSample
             if (firstActiveParticle != firstFreeParticle)
             {
                 device.BlendState = settings.BlendState;
-                device.DepthStencilState = DepthStencilState.DepthRead;
+                device.DepthStencilState = settings.DepthStencilState;
 
                 // Set an effect parameter describing the viewport size. This is
                 // needed to convert particle sizes into screen space point sizes.

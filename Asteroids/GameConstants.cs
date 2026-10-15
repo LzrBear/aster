@@ -23,7 +23,7 @@ namespace Asteroids
 
         // ── Ship ──────────────────────────────────────────────────────────────
         public const float maxSpeed    = 5.0f;   // acceleration ramp ceiling in Ship.cs
-        public const float ShipMaxSpeed = 50.0f; // hard velocity cap (units/frame)
+        public const float ShipMaxSpeed = 125.0f; // hard velocity cap (units/frame); ~5x max asteroid speed at 60 fps
         public const int   lives       = 3;
 
         // ── Asteroids ─────────────────────────────────────────────────────────
@@ -135,6 +135,17 @@ namespace Asteroids
         public const float SparksParticleCountScale = 40f;
         public const int   SmokeParticleMin         = 5;
         public const int   SparksParticleMin        = 8;
+
+        // ── Particle draw order ───────────────────────────────────────────────
+        // Lower = drawn first in base.Draw (appears behind); higher = drawn later (appears in front).
+        // Stars are drawn explicitly via DrawStarsEarly before 3D models and hidden before base.Draw.
+        // Their high DrawOrder ensures they'd draw last if accidentally not hidden.
+        public const int DrawOrderSparks    = 100;
+        public const int DrawOrderSmoke     = 200;
+        public const int DrawOrderExplosion = 300;
+        public const int DrawOrderBullets   = 400;
+        public const int DrawOrderThruster  = 500;
+        public const int DrawOrderStars     = 600;
 
         // ── Misc ──────────────────────────────────────────────────────────────
         public const int numStars = 10;

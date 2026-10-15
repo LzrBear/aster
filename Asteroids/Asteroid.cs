@@ -9,9 +9,9 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Asteroids
 {
-    enum AsteroidSize { Large, Medium, Small }
+    public enum AsteroidSize { Large, Medium, Small }
 
-    class Asteroid
+    public class Asteroid
     {
 
         public Vector3 position;

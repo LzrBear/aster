@@ -105,5 +105,10 @@ namespace Particle3DSample
 
         // Alpha blending settings.
         public BlendState BlendState = BlendState.NonPremultiplied;
+
+        // Depth stencil state used while drawing particles.
+        // Override to DepthStencilState.None for effects (smoke, sparks, explosion)
+        // that must always overdraw 3D models regardless of depth.
+        public DepthStencilState DepthStencilState = DepthStencilState.DepthRead;
     }
 }

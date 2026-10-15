@@ -11,7 +11,7 @@ A 3D Asteroids game built with MonoGame 3.8.1 / .NET 9, migrated from the origin
 - Difficulty ramps up over 120 seconds: the field starts sparse and slow, then fills to full speed
 - Asteroids obey elastic collision physics, so they bounce off each other with proper momentum transfer
 - Larger asteroids do more crack damage to smaller ones on collision
-- Ship thrust is logarithmic — responsive acceleration that tapers as you approach top speed; no drag, so speed is conserved in the Newtonian tradition
+- Ship thrust is logarithmic — fast initial response that tapers as the ramp builds; no drag, speed is conserved Newtonian-style up to a hard top speed (≈5× max asteroid speed)
 - You lose a life when an asteroid hits your ship; game over when all lives are lost
 - High scores are saved between sessions (AES-256 encrypted, HMAC-SHA256 integrity checked)
 
@@ -57,7 +57,15 @@ The MonoGame content pipeline runs automatically as part of the build via `MonoG
 dotnet test Asteroids.Tests/Asteroids.Tests.csproj
 ```
 
-17 xUnit tests covering `HighScoreManager` (save/load round-trip, tamper detection, sort order, capacity) and `GameConstants` (size rank ordering, fragment counts, speed and difficulty invariants).
+37 xUnit tests across five suites:
+
+| Suite | What it covers |
+|---|---|
+| `HighScoreManagerTests` | Save/load round-trip, tamper detection, sort order, capacity |
+| `GameConstantsTests` | Size ranks, fragment counts, speed/difficulty invariants, ship max speed, spawn immunity duration |
+| `AsteroidUpdateTests` | Position advance, playfield wrap, spawn immunity timer countdown |
+| `CollisionGeometryTests` | Asteroid-asteroid, bullet-asteroid, ship-asteroid bounding sphere detection |
+| `RenderLayerTests` | Particle draw order invariants, depth stencil state configuration |
 
 ## Creating a Windows Installer
 
