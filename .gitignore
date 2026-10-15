@@ -28,6 +28,9 @@ _UpgradeReport_Files/
 *.nupkg
 *.snupkg
 
+# Subversion leftovers
+.svn/
+
 # OS
 Thumbs.db
 .DS_Store
