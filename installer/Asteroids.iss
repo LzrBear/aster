@@ -59,6 +59,8 @@ begin
 end;
 
 function InitializeSetup: Boolean;
+var
+  ErrCode: Integer;
 begin
   Result := True;
   if not IsDotNet9DesktopInstalled then
@@ -68,7 +70,7 @@ begin
       'It does not appear to be installed.' + #13#10#13#10 +
       'Click OK to open the .NET download page, then re-run this installer.',
       mbInformation, MB_OKCANCEL) = IDOK then
-      ShellExec('open', 'https://aka.ms/dotnet/9.0/windowsdesktop-runtime-win-x64.exe', '', '', SW_SHOW, ewNoWait);
+      ShellExec('open', 'https://aka.ms/dotnet/9.0/windowsdesktop-runtime-win-x64.exe', '', '', SW_SHOW, ewNoWait, ErrCode);
     Result := False;
   end;
 end;
