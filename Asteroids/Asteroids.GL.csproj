@@ -11,6 +11,7 @@
     <StartupObject>Asteroids.Program</StartupObject>
     <NoWarn>$(NoWarn);CA1416;NETSDK1206</NoWarn>
     <ApplicationIcon>game.ico</ApplicationIcon>
+    <BaseIntermediateOutputPath>obj\GL\</BaseIntermediateOutputPath>
     <DefineConstants>$(DefineConstants);DESKTOPGL</DefineConstants>
   </PropertyGroup>
 
