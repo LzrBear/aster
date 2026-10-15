@@ -84,6 +84,8 @@ string? vertSrc = ExtractField(meshBlock, "Vertices");
 if (vertSrc == null) { Console.Error.WriteLine("No Vertices field"); Environment.Exit(1); return; }
 float[] vf = ParseFloats(vertSrc);
 int vCount = vf.Length / 3;
+// Negate Z to match XNA FBX importer's right-to-left-handed axis conversion
+for (int i = 0; i < vCount; i++) vf[i * 3 + 2] = -vf[i * 3 + 2];
 Console.WriteLine($"  Vertices: {vCount}");
 
 string? pidxSrc = ExtractField(meshBlock, "PolygonVertexIndex");
@@ -102,7 +104,7 @@ if (face.Count > 0) faces.Add(face.ToArray());
 var tris = new List<int[]>();
 foreach (var f in faces)
     for (int i = 1; i < f.Length - 1; i++)
-        tris.Add(new[] { f[0], f[i], f[i + 1] });
+        tris.Add(new[] { f[0], f[i + 1], f[i] }); // reversed winding to compensate Z-negation
 Console.WriteLine($"  Polygons: {faces.Count}, Triangles: {tris.Count}");
 
 // UVs
@@ -122,10 +124,9 @@ var sb = new StringBuilder();
 sb.AppendLine("xof 0303txt 0032");
 sb.AppendLine();
 sb.AppendLine("Frame Root {");
-// 180° rotation around Z to flip the model nose direction
 sb.AppendLine("  FrameTransformMatrix {");
-sb.AppendLine("    -1.000000, 0.000000, 0.000000, 0.000000,");
-sb.AppendLine("    0.000000, -1.000000, 0.000000, 0.000000,");
+sb.AppendLine("    1.000000, 0.000000, 0.000000, 0.000000,");
+sb.AppendLine("    0.000000, 1.000000, 0.000000, 0.000000,");
 sb.AppendLine("    0.000000, 0.000000, 1.000000, 0.000000,");
 sb.AppendLine("    0.000000, 0.000000, 0.000000, 1.000000;;");
 sb.AppendLine("  }");

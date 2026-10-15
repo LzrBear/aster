@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FbxConvert")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f7a87fc640c0944a7740938cbe5f8bafd9cb6e18")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+153d7cc5b5aeeb4be33549ad05379efaf512dd8b")]
 [assembly: System.Reflection.AssemblyProductAttribute("FbxConvert")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FbxConvert")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
