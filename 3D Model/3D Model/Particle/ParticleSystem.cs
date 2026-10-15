@@ -175,10 +175,10 @@ namespace Particle3DSample
 
             for (int i = 0; i < settings.MaxParticles; i++)
             {
-                particles[i * 4 + 0].Corner = new Short2(-1, -1);
-                particles[i * 4 + 1].Corner = new Short2(1, -1);
-                particles[i * 4 + 2].Corner = new Short2(1, 1);
-                particles[i * 4 + 3].Corner = new Short2(-1, 1);
+                particles[i * 4 + 0].Corner = new HalfVector2(-1, -1);
+                particles[i * 4 + 1].Corner = new HalfVector2(1, -1);
+                particles[i * 4 + 2].Corner = new HalfVector2(1, 1);
+                particles[i * 4 + 3].Corner = new HalfVector2(-1, 1);
             }
 
             base.Initialize();

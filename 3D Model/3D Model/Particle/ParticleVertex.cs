@@ -21,7 +21,7 @@ namespace Particle3DSample
     struct ParticleVertex
     {
         // Stores which corner of the particle quad this vertex represents.
-        public Short2 Corner;
+        public HalfVector2 Corner;
 
         // Stores the starting position of the particle.
         public Vector3 Position;
@@ -39,7 +39,7 @@ namespace Particle3DSample
         // Describe the layout of this vertex structure.
         public static readonly VertexDeclaration VertexDeclaration = new VertexDeclaration
         (
-            new VertexElement(0, VertexElementFormat.Short2,
+            new VertexElement(0, VertexElementFormat.HalfVector2,
                                  VertexElementUsage.Position, 0),
 
             new VertexElement(4, VertexElementFormat.Vector3,
