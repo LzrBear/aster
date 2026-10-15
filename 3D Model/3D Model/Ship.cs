@@ -90,7 +90,7 @@ namespace Asteroids
             }
 
 
-            //Check if the ship goes out of playfied and warp them around
+            //Check if the ship goes out of playfield and warp them around
             if (Position.X > GameConstants.PlayfieldSizeX)
                 Position.X -= 2 * GameConstants.PlayfieldSizeX;
             if (Position.X < -GameConstants.PlayfieldSizeX)

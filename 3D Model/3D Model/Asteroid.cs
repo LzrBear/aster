@@ -48,7 +48,7 @@ namespace Asteroids
             //Update the angle of the asteroid
 
 
-            //Check if asteroids go out of playfied and warp them around
+            //Check if asteroids go out of playfield and warp them around
             if (position.X > GameConstants.PlayfieldSizeX)
                 position.X -= 2 * GameConstants.PlayfieldSizeX;
             if (position.X < -GameConstants.PlayfieldSizeX)
