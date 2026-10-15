@@ -5,6 +5,8 @@ A 3D Asteroids game built with MonoGame 3.8.1 / .NET 9, migrated from the origin
 ![CI](https://github.com/LzrBear/aster/actions/workflows/ci.yml/badge.svg)
 ![Release](https://github.com/LzrBear/aster/actions/workflows/release.yml/badge.svg)
 
+![Asteroids demo](docs/demo.gif)
+
 ## Gameplay
 
 - Pilot your ship through an asteroid field and shoot them down before they hit you
