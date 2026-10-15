@@ -323,6 +323,7 @@ namespace Asteroids.Game_Types
                 asteroidModel.Meshes[0].BoundingSphere.Radius *
                 GameConstants.AsteroidBoundingSphereScale *
                 AsteroidScale(size));
+            asteroidList[slot].spawnImmunityTimer = GameConstants.AsteroidSpawnImmunityDuration;
         }
 
         // Adds cracks to an asteroid; splits it when threshold is reached.
@@ -421,8 +422,10 @@ namespace Asteroids.Game_Types
             // Add velocity to the current position.
             ship.Position += ship.Velocity;
 
-            // Bleed off velocity over time
-            ship.Velocity *= GameConstants.VelocityDamping;
+            // Clamp to hard top speed — no drag/damping.
+            float shipSpeed = ship.Velocity.Length();
+            if (shipSpeed > GameConstants.ShipMaxSpeed)
+                ship.Velocity = ship.Velocity * (GameConstants.ShipMaxSpeed / shipSpeed);
 
             //Create a bounding sphere around the ship
             BoundingSphere shipSphere = new BoundingSphere(
@@ -503,6 +506,7 @@ namespace Asteroids.Game_Types
                 for (int j = i + 1; j < asteroidList.Length; j++)
                 {
                     if (!asteroidList[j].isActive) continue;
+                    if (asteroidList[i].spawnImmunityTimer > 0f || asteroidList[j].spawnImmunityTimer > 0f) continue;
                     if (asteroidList[i].bounds.Intersects(asteroidList[j].bounds))
                     {
                         tmpPos = (asteroidList[i].position + asteroidList[j].position) / 2;

@@ -23,6 +23,7 @@ namespace Asteroids
         public AsteroidSize Size = AsteroidSize.Large;
         public int cracks = 0;
         public int cracksToBreak = 3;
+        public float spawnImmunityTimer = 0f;
 
         public Matrix RotationMatrix = Matrix.CreateRotationX(MathHelper.PiOver2) *
             Matrix.CreateRotationZ(10.0f) * Matrix.CreateRotationY(10.0f);
@@ -41,6 +42,9 @@ namespace Asteroids
 
             //direction.X += -(float)Math.Sin(10.0f);
             //direction.Y += -(float)Math.Cos(10.0f);
+
+            if (spawnImmunityTimer > 0f)
+                spawnImmunityTimer = Math.Max(0f, spawnImmunityTimer - delta);
 
             //Update the position of the asteroid
             position += direction * speed * GameConstants.AsteroidSpeedAdjustment * delta;

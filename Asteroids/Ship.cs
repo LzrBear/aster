@@ -74,13 +74,14 @@ namespace Asteroids
             else
                 Rotation -= currentGamePadSate.ThumbSticks.Left.X * 0.10f;
 
-            // Now scale our direction by how long the key has been pressed down
+            // Thrust ramps up logarithmically: fast response at first, then tapering.
             if (currentKeyState.IsKeyDown(Keys.W) || currentKeyState.IsKeyDown(Keys.Up))
             {
                 if (acceleration <= GameConstants.maxSpeed)
                     acceleration += 0.1f;
 
-                Velocity += RotationMatrix.Forward * VelocityScale * acceleration;
+                float logFraction = MathF.Log(1f + acceleration) / MathF.Log(1f + GameConstants.maxSpeed);
+                Velocity += RotationMatrix.Forward * VelocityScale * GameConstants.maxSpeed * logFraction;
             }
            else
             {

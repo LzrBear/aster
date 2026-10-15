@@ -22,8 +22,9 @@ namespace Asteroids
         public const  float PlayfieldOverscale = 1.15f;   // playfield = visible * this
 
         // ── Ship ──────────────────────────────────────────────────────────────
-        public const float maxSpeed = 5.0f;
-        public const int   lives    = 3;
+        public const float maxSpeed    = 5.0f;   // acceleration ramp ceiling in Ship.cs
+        public const float ShipMaxSpeed = 25.0f; // hard velocity cap (units/frame)
+        public const int   lives       = 3;
 
         // ── Asteroids ─────────────────────────────────────────────────────────
         public const int   NumAsteroids           = 60;    // pool size (allows for splits)
@@ -39,7 +40,8 @@ namespace Asteroids
         public const float InitialSpeedMultiplier  = 0.25f; // fraction of full speed at game start
         public const float AsteroidSpawnInterval   = 4f;    // seconds between spawn-check ticks
         public const float AsteroidSpeedAdjustment = 5.0f;
-        public const float AsteroidSplitSeparation = 500f;  // offset between split fragments (must stay inside smoke cloud)
+        public const float AsteroidSplitSeparation      = 200f;  // fragment spawn offset — small so they start inside the smoke cloud
+        public const float AsteroidSpawnImmunityDuration = 0.5f;  // seconds new fragments are immune to asteroid-asteroid collisions
 
         // Crack thresholds — hits before an asteroid splits (per size)
         public const int LargeCracksMin  = 3;
@@ -77,7 +79,7 @@ namespace Asteroids
         public const float ShipBoundingSphereScale     = 0.5f;
 
         // ── Gameplay ──────────────────────────────────────────────────────────
-        public const float VelocityDamping               = 0.99f;
+        // VelocityDamping removed — ship now uses a hard ShipMaxSpeed cap with no drag.
         public const float RespawnInvincibilityDuration  = 3.0f;  // seconds
         public const int   RespawnFlashRate              = 8;     // flashes per second
         public const float ExplosionDistanceFactor       = 2000f; // normalises sound volume by distance
