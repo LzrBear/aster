@@ -88,10 +88,10 @@ jobs:
           echo "value=${v#v}" >> $GITHUB_OUTPUT
 
       - name: Publish osx-arm64
-        run: dotnet publish Asteroids/Asteroids.csproj /p:PublishProfile=osx-arm64
+        run: dotnet publish Asteroids/Asteroids.GL.csproj /p:PublishProfile=osx-arm64
 
       - name: Publish osx-x64
-        run: dotnet publish Asteroids/Asteroids.csproj /p:PublishProfile=osx-x64
+        run: dotnet publish Asteroids/Asteroids.GL.csproj /p:PublishProfile=osx-x64
 
       - name: Package macOS zips
         run: |
@@ -125,7 +125,7 @@ jobs:
           echo "value=${v#v}" >> $GITHUB_OUTPUT
 
       - name: Publish linux-x64
-        run: dotnet publish Asteroids/Asteroids.csproj /p:PublishProfile=linux-x64
+        run: dotnet publish Asteroids/Asteroids.GL.csproj /p:PublishProfile=linux-x64
 
       - name: Package Linux tar.gz
         run: |
