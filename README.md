@@ -10,13 +10,11 @@ A 3D Asteroids game built with MonoGame 3.8.1 / .NET 9, migrated from the origin
 ## Gameplay
 
 - Pilot your ship through an asteroid field and shoot them down before they hit you
-- Asteroids crack and shatter — shoot a large one and it breaks into 3 medium fragments; a medium breaks into 2 small ones; fragments spawn inside the explosion cloud
-- Difficulty ramps up over 120 seconds: the field starts sparse and slow, then fills to full speed
-- Asteroids obey elastic collision physics, so they bounce off each other with proper momentum transfer
-- Larger asteroids do more crack damage to smaller ones on collision
-- Ship thrust is logarithmic — fast initial response that tapers as the ramp builds; no drag, speed is conserved Newtonian-style up to a hard top speed (≈5× max asteroid speed)
+- Shoot a large asteroid and it breaks into 3 medium fragments; a medium breaks into 2 small ones
+- Asteroids bounce off each other and deal crack damage — enough hits and they shatter
+- Difficulty ramps up over time: the field starts sparse and slow, then fills to full speed
 - You lose a life when an asteroid hits your ship; game over when all lives are lost
-- High scores are saved between sessions (AES-256 encrypted, HMAC-SHA256 integrity checked)
+- High scores are saved between sessions
 
 ### Controls
 
