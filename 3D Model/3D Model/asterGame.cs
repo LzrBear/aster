@@ -99,8 +99,7 @@ namespace Asteroids
         protected override void LoadContent()
         {
             //Background
-            stars =
-                Content.Load<Texture2D>("Textures/B1_stars");
+            stars = Content.Load<Texture2D>("Textures/B1_stars");
 
             //Music
             Music_default =
@@ -156,23 +155,27 @@ namespace Asteroids
         ///
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
             GraphicsDevice.BlendState = BlendState.Opaque;
 
-            //Draw the background
+            // Draw the background — first pass normal, second pass additive to boost star brightness
             spriteBatch.Begin();
             spriteBatch.Draw(stars, new Rectangle(0, 0, 800, 600), Color.White);
             spriteBatch.End();
 
-            // Set camera on all particle systems before drawing
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive);
+            spriteBatch.Draw(stars, new Rectangle(0, 0, 800, 600), Color.White * 0.9f);
+            spriteBatch.End();
+
+            // Set camera matrices on all particle systems before they draw
             particleEffect.draw(viewMatrix, projectionMatrix);
             stand.particleEffect.draw(viewMatrix, projectionMatrix);
 
-            // Draw all components (particles) once with correct cameras
-            base.Draw(gameTime);
-
-            //Draw the standard game type (models + score)
+            // Draw 3D models first so particles render on top
             stand.drawGame(GraphicsDevice);
+
+            // Draw particles (explosions, sparks, etc.) on top of models
+            base.Draw(gameTime);
         }
     }
 }

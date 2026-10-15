@@ -97,6 +97,7 @@ namespace Asteroids.Game_Types
             {
                 asteroidList[i] = new Asteroid();
                 asteroidList[i].rotation = (float)random.NextDouble() / 100;
+                asteroidList[i].isActive = false;
             }
             ResetAsteroids();
 
@@ -142,9 +143,9 @@ namespace Asteroids.Game_Types
         public void ResetAsteroids()
         {
             for (int i = 0; i < GameConstants.NumAsteroids; i++)
-            {
+                asteroidList[i].isActive = false;
+            for (int i = 0; i < GameConstants.NumInitialAsteroids; i++)
                 resetAster(i);
-            }
         }
 
         public void resetAster(int i)
@@ -198,6 +199,124 @@ namespace Asteroids.Game_Types
             asteroidList[i].direction.Y = (float)Math.Cos(angle);
             asteroidList[i].speed = GameConstants.AsteroidMinSpeed +
                 (float)random.NextDouble() * GameConstants.AsteroidMaxSpeed;
+            asteroidList[i].Size = AsteroidSize.Large;
+            asteroidList[i].isActive = true;
+            asteroidList[i].cracks = 0;
+            asteroidList[i].cracksToBreak = cracksForSize(AsteroidSize.Large);
+        }
+
+        // Bullet hit: instantly shrinks by one size, resets cracks. At Small, respawns off-screen.
+        // Returns the score bonus earned.
+        private int shrinkAsteroid(int i)
+        {
+            if (asteroidList[i].Size == AsteroidSize.Large)
+            {
+                asteroidList[i].Size = AsteroidSize.Medium;
+                asteroidList[i].cracks = 0;
+                asteroidList[i].cracksToBreak = cracksForSize(AsteroidSize.Medium);
+                return GameConstants.LargeAsteroidBonus;
+            }
+            else if (asteroidList[i].Size == AsteroidSize.Medium)
+            {
+                asteroidList[i].Size = AsteroidSize.Small;
+                asteroidList[i].cracks = 0;
+                asteroidList[i].cracksToBreak = cracksForSize(AsteroidSize.Small);
+                return GameConstants.MediumAsteroidBonus;
+            }
+            else
+            {
+                resetAster(i);
+                return GameConstants.SmallAsteroidBonus;
+            }
+        }
+
+        private int cracksForSize(AsteroidSize size)
+        {
+            switch (size)
+            {
+                case AsteroidSize.Large:  return random.Next(GameConstants.LargeCracksMin,  GameConstants.LargeCracksMax  + 1);
+                case AsteroidSize.Medium: return random.Next(GameConstants.MediumCracksMin, GameConstants.MediumCracksMax + 1);
+                default:                  return random.Next(GameConstants.SmallCracksMin,  GameConstants.SmallCracksMax  + 1);
+            }
+        }
+
+        // Initialises a split fragment into an existing (inactive) slot.
+        private void initSplitAsteroid(int slot, Vector3 position, Vector3 direction, AsteroidSize size)
+        {
+            asteroidList[slot].position = position;
+            asteroidList[slot].direction = direction;
+            asteroidList[slot].speed = GameConstants.AsteroidMinSpeed +
+                (float)random.NextDouble() * GameConstants.AsteroidMaxSpeed;
+            asteroidList[slot].Size = size;
+            asteroidList[slot].isActive = true;
+            asteroidList[slot].cracks = 0;
+            asteroidList[slot].cracksToBreak = cracksForSize(size);
+            // Set correct bounds immediately — the collision loop may still be running this frame
+            // and would otherwise see the stale default BoundingSphere at origin (radius 0),
+            // which intersects with the ship (also at/near origin) and causes a false death.
+            asteroidList[slot].bounds = new BoundingSphere(position,
+                asteroidModel.Meshes[0].BoundingSphere.Radius *
+                GameConstants.AsteroidBoundingSphereScale *
+                AsteroidScale(size));
+        }
+
+        // Adds one crack to an asteroid from a collision; splits it when threshold is reached.
+        private void crackAsteroid(int i)
+        {
+            asteroidList[i].cracks++;
+            if (asteroidList[i].cracks >= asteroidList[i].cracksToBreak)
+                splitAsteroid(i);
+        }
+
+        // Splits an asteroid into two of the next size down, spreading ~45° apart.
+        // Large → 2×Medium, Medium → 2×Small, Small → gone (respawn Large off-screen).
+        private void splitAsteroid(int i)
+        {
+            AsteroidSize currentSize = asteroidList[i].Size;
+
+            if (currentSize == AsteroidSize.Small)
+            {
+                resetAster(i);
+                return;
+            }
+
+            AsteroidSize nextSize = (currentSize == AsteroidSize.Large)
+                ? AsteroidSize.Medium : AsteroidSize.Small;
+
+            Vector3 pos = asteroidList[i].position;
+            Vector3 dir = asteroidList[i].direction;
+
+            // Spread the two fragments ~45° apart from the original direction
+            Vector3 dir1 = Vector3.Transform(dir, Matrix.CreateRotationZ(-MathHelper.PiOver4));
+            Vector3 dir2 = Vector3.Transform(dir, Matrix.CreateRotationZ( MathHelper.PiOver4));
+            dir1.Normalize();
+            dir2.Normalize();
+
+            // Offset each fragment along its own direction so they don't start at the same
+            // position — identical positions cause a zero-length normal on the next collision
+            // check, Normalize() returns NaN, and all positions go NaN.
+            const float separation = 2000f;
+            initSplitAsteroid(i, pos + dir1 * separation, dir1, nextSize);
+
+            // Find a free slot for the second fragment
+            for (int j = 0; j < GameConstants.NumAsteroids; j++)
+            {
+                if (!asteroidList[j].isActive)
+                {
+                    initSplitAsteroid(j, pos + dir2 * separation, dir2, nextSize);
+                    break;
+                }
+            }
+        }
+
+        private static float AsteroidScale(AsteroidSize size)
+        {
+            switch (size)
+            {
+                case AsteroidSize.Medium: return GameConstants.MediumAsteroidScale;
+                case AsteroidSize.Small:  return GameConstants.SmallAsteroidScale;
+                default:                  return GameConstants.LargeAsteroidScale;
+            }
         }
 
         protected override void updateGame(GameTime gameTime)
@@ -236,18 +355,21 @@ namespace Asteroids.Game_Types
             //Update asteroids
             for (int i = 0; i < asteroidList.Length; i++)
             {
+                if (!asteroidList[i].isActive) continue;
                 asteroidList[i].Update(timeDelta);
 
-                //Ship-asteroid collision check
                 BoundingSphere b = new BoundingSphere(asteroidList[i].position,
                     asteroidModel.Meshes[0].BoundingSphere.Radius *
-                    GameConstants.AsteroidBoundingSphereScale);
+                    GameConstants.AsteroidBoundingSphereScale *
+                    AsteroidScale(asteroidList[i].Size));
                 asteroidList[i].bounds = b;
             }
 
             //Possible for collision check codes to be improved for efficiency (only check nearby asteroids)
             for (int i = 0; i < asteroidList.Length; i++)
             {
+                if (!asteroidList[i].isActive) continue;
+
                 //ship-asteroid collision check
                 if (asteroidList[i].bounds.Intersects(shipSphere) && ship.isActive)
                 {
@@ -277,12 +399,8 @@ namespace Asteroids.Game_Types
                                 soundExplosion1.Play(dist * GameConstants.ExplosionVolume, 0.2f, 0.3f);
 
                             particleEffect.UpdateExplosion(asteroidList[i].position);
-
-                            asteroidList[i].isActive = false;
                             bulletList[j].isActive = false;
-
-                            resetAster(i);
-                            score += GameConstants.KillBonus;
+                            score += shrinkAsteroid(i);
 
                             break; //no need to check the other bullets
                         }
@@ -293,6 +411,7 @@ namespace Asteroids.Game_Types
                 Vector3 tmpPos = new Vector3();
                 for (int j = i + 1; j < asteroidList.Length; j++)
                 {
+                    if (!asteroidList[j].isActive) continue;
                     if (asteroidList[i].bounds.Intersects(asteroidList[j].bounds))
                     {
                         tmpPos = (asteroidList[i].position + asteroidList[j].position) / 2;
@@ -326,8 +445,6 @@ namespace Asteroids.Game_Types
                         asteroidList[j].direction = -Vnj + Vnpj;
                         asteroidList[j].direction.Normalize();
 
-                        //I think asteroid collision noise is a bit over the top
-                        //maybe I need a better sound effect?
                         dist = 2000 / (float)Math.Sqrt((tmpPos.X * tmpPos.X) + (tmpPos.Y * tmpPos.Y));
                         if (asteroidList[i].position.X < visibleHalfX &&
                             asteroidList[i].position.X > -visibleHalfX &&
@@ -338,6 +455,10 @@ namespace Asteroids.Game_Types
                             if (dist < 1.0f)
                                 soundExplosion2.Play(dist * GameConstants.ExplosionVolume, 0.0f, 0.0f);
                         }
+
+                        // Each asteroid gains one crack; splits when threshold is reached
+                        crackAsteroid(i);
+                        crackAsteroid(j);
 
                         break; //no need to check against other asteroids
                     }
@@ -433,13 +554,28 @@ namespace Asteroids.Game_Types
             if (ship.isActive)
                 DrawModel(ship.Model, shipTransformMatrix, ship.Transforms);
 
-            //Draw the asteroids
+            //Draw the asteroids with crack damage tint (orange-red glow builds as cracks increase)
             for (int i = 0; i < GameConstants.NumAsteroids; i++)
             {
-                Matrix asteroidTransform = asteroidList[i].RotationMatrix *
-                    Matrix.CreateTranslation(asteroidList[i].position);
+                if (!asteroidList[i].isActive) continue;
+
+                float crackRatio = asteroidList[i].cracksToBreak > 0
+                    ? (float)asteroidList[i].cracks / asteroidList[i].cracksToBreak
+                    : 0f;
+                foreach (ModelMesh mesh in asteroidModel.Meshes)
+                    foreach (BasicEffect effect in mesh.Effects)
+                        effect.EmissiveColor = new Vector3(crackRatio * 0.7f, crackRatio * 0.15f, 0f);
+
+                float scale = AsteroidScale(asteroidList[i].Size);
+                Matrix asteroidTransform = Matrix.CreateScale(scale)
+                    * asteroidList[i].RotationMatrix
+                    * Matrix.CreateTranslation(asteroidList[i].position);
                 DrawModel(asteroidModel, asteroidTransform, asteroidTransforms);
             }
+            // Reset emissive so other models are unaffected
+            foreach (ModelMesh mesh in asteroidModel.Meshes)
+                foreach (BasicEffect effect in mesh.Effects)
+                    effect.EmissiveColor = Vector3.Zero;
 
             //Draw the bullets
             for (int i = 0; i < GameConstants.NumBullets; i++)
@@ -451,9 +587,6 @@ namespace Asteroids.Game_Types
                     DrawModel(bulletModel, bulletTransform, bulletTransforms);
                 }
             }
-
-            //Draw the particle effects
-            particleEffect.draw(viewMatrix, projectionMatrix);
 
             //Draw the score
             spriteBatch.Begin();
@@ -506,7 +639,8 @@ namespace Asteroids.Game_Types
                 //Ship-asteroid collision check
                 BoundingSphere b = new BoundingSphere(asteroidList[i].position,
                     asteroidModel.Meshes[0].BoundingSphere.Radius *
-                    GameConstants.AsteroidBoundingSphereScale);
+                    GameConstants.AsteroidBoundingSphereScale *
+                    AsteroidScale(asteroidList[i].Size));
                 asteroidList[i].bounds = b;
             }
 
@@ -654,7 +788,8 @@ namespace Asteroids.Game_Types
                 //Ship-asteroid collision check
                 BoundingSphere b = new BoundingSphere(asteroidList[i].position,
                     asteroidModel.Meshes[0].BoundingSphere.Radius *
-                    GameConstants.AsteroidBoundingSphereScale);
+                    GameConstants.AsteroidBoundingSphereScale *
+                    AsteroidScale(asteroidList[i].Size));
                 asteroidList[i].bounds = b;
             }
 

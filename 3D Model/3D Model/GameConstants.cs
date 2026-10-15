@@ -24,7 +24,16 @@ namespace Asteroids
         public const int lives = 3;
 
         //asteroid constants
-        public const int NumAsteroids = 20;
+        public const int NumAsteroids = 60;         // pool size (allows for splits)
+        public const int NumInitialAsteroids = 20;  // how many start active
+
+        // Crack thresholds — hits before an asteroid splits (per size)
+        public const int LargeCracksMin = 3;
+        public const int LargeCracksMax = 5;
+        public const int MediumCracksMin = 2;
+        public const int MediumCracksMax = 3;
+        public const int SmallCracksMin = 1;
+        public const int SmallCracksMax = 2;
         public const float AsteroidMinSpeed = 100.0f;
         public const float AsteroidMaxSpeed = 300.0f;
         public const float AsteroidSpeedAdjustment = 5.0f;
@@ -41,7 +50,15 @@ namespace Asteroids
         public const int ShotPenalty = 1;
         public const int DeathPenalty = 100;
         public const int WarpPenalty = 50;
-        public const int KillBonus = 25;
+        public const int KillBonus = 25; // legacy — use size-specific bonuses below
+        public const int LargeAsteroidBonus = 10;
+        public const int MediumAsteroidBonus = 25;
+        public const int SmallAsteroidBonus = 50;
+
+        // Visual scale per asteroid size
+        public const float LargeAsteroidScale  = 1.0f;
+        public const float MediumAsteroidScale = 0.5f;
+        public const float SmallAsteroidScale  = 0.25f;
 
         public const int numStars = 10;
 

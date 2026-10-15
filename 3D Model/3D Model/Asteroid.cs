@@ -9,6 +9,8 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Asteroids
 {
+    enum AsteroidSize { Large, Medium, Small }
+
     class Asteroid
     {
 
@@ -18,6 +20,9 @@ namespace Asteroids
         public float speed;
         public BoundingSphere bounds;
         public bool isActive = false;
+        public AsteroidSize Size = AsteroidSize.Large;
+        public int cracks = 0;
+        public int cracksToBreak = 3;
 
         public Matrix RotationMatrix = Matrix.CreateRotationX(MathHelper.PiOver2) *
             Matrix.CreateRotationZ(10.0f) * Matrix.CreateRotationY(10.0f);
