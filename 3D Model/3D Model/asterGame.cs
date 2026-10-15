@@ -201,7 +201,9 @@ namespace Asteroids
                 {
                     case 0: // Play
                         if (stand.HasInitialized)
-                            stand.Reset();
+                            stand.Reset(); // Reset calls FlushInput internally
+                        else
+                            stand.FlushInput(); // first play — prevent menu key bleeding into gameplay
                         currentState = GameState.Playing;
                         break;
                     case 1: // High Scores

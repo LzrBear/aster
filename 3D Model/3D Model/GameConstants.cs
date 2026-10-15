@@ -77,8 +77,25 @@ namespace Asteroids
 
         // ── High scores ───────────────────────────────────────────────────────
         public const int    MaxHighScores      = 10;
-        public const string HighScoresFile     = "highscores.txt";
+        public const string HighScoresFile     = "highscores.dat";
         public const char   HighScoreSeparator = '|';
+
+        // AES-256 key for encrypting the high scores file.
+        // HMAC-SHA256 key for integrity verification (encrypt-then-MAC).
+        public static readonly byte[] HsAesKey = new byte[]
+        {
+            0x4A, 0x7F, 0x2E, 0xB3, 0xC1, 0x95, 0x6D, 0xA8,
+            0x3E, 0xF4, 0x71, 0xD2, 0x88, 0x0C, 0x5B, 0x96,
+            0xE7, 0x43, 0xAA, 0x1F, 0x69, 0xBC, 0x27, 0x5E,
+            0xD0, 0x84, 0xF3, 0x12, 0x7A, 0x4E, 0x9C, 0x6B
+        };
+        public static readonly byte[] HsHmacKey = new byte[]
+        {
+            0xB5, 0x3D, 0x8A, 0xF6, 0x21, 0xC4, 0x7E, 0x19,
+            0x5C, 0xA2, 0xED, 0x70, 0x4F, 0x93, 0x16, 0xDB,
+            0x82, 0x5A, 0xC9, 0x47, 0xFE, 0x3B, 0xA6, 0x60,
+            0x1D, 0x74, 0xE8, 0x2F, 0x91, 0xB0, 0x53, 0xC7
+        };
 
         // ── Volume levels (0.0 = silent, 1.0 = full) ─────────────────────────
         public const float MusicVolume      = 0.4f;

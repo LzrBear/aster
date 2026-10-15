@@ -181,6 +181,15 @@ namespace Asteroids.Game_Types
             soundEngineInstance.Stop();
             respawnInvincibleTimer = 0f;
             ResetAsteroids();
+            FlushInput();
+        }
+
+        // Snapshot current input state so the first gameplay frame doesn't misread
+        // keys that were held during a menu transition as fresh presses.
+        public void FlushInput()
+        {
+            lastKState = Keyboard.GetState();
+            lastGState = GamePad.GetState(PlayerIndex.One);
         }
 
         //Resets all the asteroids in the asteroid list;
