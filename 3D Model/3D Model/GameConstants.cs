@@ -112,6 +112,15 @@ namespace Asteroids
         public const float WeaponVolume     = 0.45f;
         public const float HyperspaceVolume = 0.4f;
 
+        // ── Particle counts ───────────────────────────────────────────────────
+        // Smoke and sparks emitted on asteroid collision/destruction.
+        // Actual count = max(Min, (int)(AsteroidScale * Scale)) so larger
+        // asteroids produce a proportionally bigger cloud.
+        public const float SmokeParticleCountScale  = 60f;
+        public const float SparksParticleCountScale = 40f;
+        public const int   SmokeParticleMin         = 5;
+        public const int   SparksParticleMin        = 8;
+
         // ── Misc ──────────────────────────────────────────────────────────────
         public const int numStars = 10;
 

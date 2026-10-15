@@ -108,24 +108,24 @@ namespace Asteroids
             }
         }
 
-        public void UpdateSmoke(Vector3 collisionLoc)
+        // sizeScale = AsteroidScale(size): 1.0 Large, 0.5 Medium, 0.25 Small.
+        // Particle counts grow proportionally so larger asteroids produce a
+        // cloud big enough to hide the mesh being removed.
+        public void UpdateSmoke(Vector3 collisionLoc, float sizeScale = 1f)
         {
-            int k = 5;
-            while (k > 0)
+            int smokeCount  = Math.Max(GameConstants.SmokeParticleMin,  (int)(sizeScale * GameConstants.SmokeParticleCountScale));
+            int sparksCount = Math.Max(GameConstants.SparksParticleMin, (int)(sizeScale * GameConstants.SparksParticleCountScale));
+
+            for (int k = smokeCount; k > 0; k--)
             {
                 tmp = new Vector3((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble());
                 smokeParticles.AddParticle(collisionLoc, tmp);
-                k--;
             }
-
-            k = 8;
-            while (k > 0)
+            for (int k = sparksCount; k > 0; k--)
             {
                 tmp = new Vector3((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble());
                 sparksParticles.AddParticle(collisionLoc, tmp);
-                k--;
             }
-
         }
 
         public void UpdateStars()

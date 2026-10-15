@@ -333,6 +333,9 @@ namespace Asteroids.Game_Types
         {
             AsteroidSize currentSize = asteroidList[i].Size;
 
+            // Emit a destruction burst sized to cover the vanishing asteroid mesh
+            particleEffect.UpdateSmoke(asteroidList[i].position, AsteroidScale(currentSize));
+
             if (currentSize == AsteroidSize.Small)
             {
                 resetAster(i);
@@ -520,7 +523,10 @@ namespace Asteroids.Game_Types
                             asteroidList[i].position.Y < visibleHalfY &&
                             asteroidList[i].position.Y > -visibleHalfY)
                         {
-                            particleEffect.UpdateSmoke(tmpPos);
+                            float smokeScale = Math.Max(
+                                AsteroidScale(asteroidList[i].Size),
+                                AsteroidScale(asteroidList[j].Size));
+                            particleEffect.UpdateSmoke(tmpPos, smokeScale);
                             if (dist < GameConstants.ExplosionSoundThreshold)
                                 soundExplosion2.Play(dist * GameConstants.ExplosionVolume, 0.0f, 0.0f);
                         }
