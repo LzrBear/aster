@@ -35,6 +35,9 @@ namespace Asteroids.Game_Types
         Vector2 scorePosition = new Vector2(100, 50);
         float _spaceWidth; // set after font load; used for HUD spacing
 
+        // Invincibility after respawn
+        float respawnInvincibleTimer = 0f;  // counts down from 3 → 0
+
         //Lives
         Vector2 livesPosition = new Vector2(100, 70);
 
@@ -155,6 +158,7 @@ namespace Asteroids.Game_Types
             for (int i = 0; i < GameConstants.NumBullets; i++)
                 bulletList[i].isActive = false;
             soundEngineInstance.Stop();
+            respawnInvincibleTimer = 0f;
             ResetAsteroids();
         }
 
@@ -331,6 +335,9 @@ namespace Asteroids.Game_Types
         {
             float timeDelta = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
+            if (respawnInvincibleTimer > 0f)
+                respawnInvincibleTimer = Math.Max(0f, respawnInvincibleTimer - timeDelta);
+
             //Update Input
             updateGameInput();
 
@@ -379,7 +386,7 @@ namespace Asteroids.Game_Types
                 if (!asteroidList[i].isActive) continue;
 
                 //ship-asteroid collision check
-                if (asteroidList[i].bounds.Intersects(shipSphere) && ship.isActive)
+                if (asteroidList[i].bounds.Intersects(shipSphere) && ship.isActive && respawnInvincibleTimer <= 0f)
                 {
                     //blow up the ship
                     soundExplosion3.Play(GameConstants.ExplosionVolume, 0f, 0f);
@@ -545,14 +552,32 @@ namespace Asteroids.Game_Types
                 soundHyperspaceActivation.Play(GameConstants.HyperspaceVolume, 0f, 0f);
                 score = Math.Max(0, score - GameConstants.WarpPenalty);
                 ship.isActive = true;
+                respawnInvincibleTimer = 3.0f;
             }
 
             lastGState = currentGamePadSate;
             lastKState = currentKeyState;
         }
 
-        // Space-aware draw: splits on ' ' and inserts _spaceWidth between segments.
-        void DrawSpHud(string text, Vector2 pos, Color color)
+        // Space-aware helpers — splits on ' ' and inserts _spaceWidth manually.
+        float MeasureSpHud(string text, float scale = 1f)
+        {
+            float w = 0f;
+            int segStart = 0;
+            for (int i = 0; i <= text.Length; i++)
+            {
+                if (i == text.Length || text[i] == ' ')
+                {
+                    if (i > segStart)
+                        w += kootenay.MeasureString(text.Substring(segStart, i - segStart)).X;
+                    if (i < text.Length) w += _spaceWidth;
+                    segStart = i + 1;
+                }
+            }
+            return w * scale;
+        }
+
+        void DrawSpHud(string text, Vector2 pos, Color color, float scale = 1f)
         {
             float curX = pos.X;
             int segStart = 0;
@@ -563,24 +588,36 @@ namespace Asteroids.Game_Types
                     if (i > segStart)
                     {
                         string seg = text.Substring(segStart, i - segStart);
-                        spriteBatch.DrawString(kootenay, seg, new Vector2(curX, pos.Y), color);
-                        curX += kootenay.MeasureString(seg).X;
+                        if (scale == 1f)
+                            spriteBatch.DrawString(kootenay, seg, new Vector2(curX, pos.Y), color);
+                        else
+                            spriteBatch.DrawString(kootenay, seg, new Vector2(curX, pos.Y), color,
+                                0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+                        curX += kootenay.MeasureString(seg).X * scale;
                     }
-                    if (i < text.Length) curX += _spaceWidth;
+                    if (i < text.Length) curX += _spaceWidth * scale;
                     segStart = i + 1;
                 }
             }
+        }
+
+        void DrawHudCentered(string text, float y, Color color, float scale = 1f)
+        {
+            float x = (800f - MeasureSpHud(text, scale)) / 2f;
+            DrawSpHud(text, new Vector2(x, y), color, scale);
         }
 
         public override void drawGame(GraphicsDevice graphics)
         {
             graphics.BlendState = BlendState.Opaque;
 
-            //Draw the ship
+            //Draw the ship — flash at ~8 Hz during invincibility window
             Matrix shipTransformMatrix = ship.RotationMatrix
                 * Matrix.CreateTranslation(ship.Position);
 
-            if (ship.isActive)
+            bool shipVisible = ship.isActive &&
+                (respawnInvincibleTimer <= 0f || (int)(respawnInvincibleTimer * 8) % 2 == 0);
+            if (shipVisible)
                 DrawModel(ship.Model, shipTransformMatrix, ship.Transforms);
 
             //Draw the asteroids with crack damage tint (orange-red glow builds as cracks increase)
@@ -621,6 +658,13 @@ namespace Asteroids.Game_Types
             spriteBatch.Begin();
             DrawSpHud("Score: " + score, scorePosition, Color.LightGreen);
             DrawSpHud("Lives: " + ship.lives, livesPosition, Color.LightGreen);
+
+            // Respawn prompt — shown while the ship is inactive and lives remain
+            if (!ship.isActive && ship.lives > 0)
+            {
+                DrawHudCentered("SHIP DESTROYED", 255f, Color.Red, 1.5f);
+                DrawHudCentered("Press HOME to respawn", 300f, Color.White);
+            }
             spriteBatch.End();
         }
 
