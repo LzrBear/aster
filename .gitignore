@@ -1,0 +1,33 @@
+# Build outputs
+bin/
+obj/
+
+# MonoGame content pipeline intermediates
+*/*/obj/
+*/*/*/obj/
+3D Model/3D ModelContent/bin/
+3D Model/3D ModelContent/obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.v11.suo
+*.v12.suo
+
+# ReSharper
+_ReSharper*/
+*.ReSharper.*
+
+# Visual Studio upgrade artifacts
+UpgradeLog*.htm
+UpgradeLog*.XML
+_UpgradeReport_Files/
+
+# .NET
+*.nupkg
+*.snupkg
+
+# OS
+Thumbs.db
+.DS_Store
