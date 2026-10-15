@@ -9,13 +9,15 @@ namespace Asteroids
     {
         //camera constants
         public const float CameraHeight = 25000.0f;
-        //IMPORTANT
-        //so far these values have been guessed, I need to determine the correct values
-        //according to the window size
-        public const float PlayfieldSizeX = 20000f;
-        public const float PlayfieldSizeY = 12500f;
-        public const float PlayfieldSizeX_min = 18000f;
-        public const float PlayfieldSizeY_min = 10500f;
+
+        // Playfield boundaries — set at runtime from the projection matrix so they
+        // always match the actual view frustum regardless of monitor aspect ratio.
+        // Spawn + wrap happen at ±PlayfieldSizeX/Y (2× the visible half-extent).
+        // _min values equal the exact visible half-extent (used for on-screen checks).
+        public static float PlayfieldSizeX = 36000f;   // fallback until runtime init
+        public static float PlayfieldSizeY = 21000f;
+        public static float PlayfieldSizeX_min = 18000f;
+        public static float PlayfieldSizeY_min = 10500f;
 
         //ship constant
         public const float maxSpeed = 5.0f;

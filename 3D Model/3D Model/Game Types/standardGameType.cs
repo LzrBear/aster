@@ -56,6 +56,10 @@ namespace Asteroids.Game_Types
         Matrix projectionMatrix;
         Matrix viewMatrix;
 
+        // Visible world half-extents at Z=0 (computed from projection matrix)
+        float visibleHalfX;
+        float visibleHalfY;
+
         //Game
         Game game;
 
@@ -70,6 +74,19 @@ namespace Asteroids.Game_Types
             //Set the view information
             projectionMatrix = pMatrix;
             viewMatrix = vMatrix;
+
+            // Compute visible world half-extents at Z=0 from the projection matrix.
+            // For perspective: M11 = 1/(aspect*tan(fovY/2)), M22 = 1/tan(fovY/2)
+            // At camera distance CameraHeight: halfX = CameraHeight/M11, halfY = CameraHeight/M22
+            visibleHalfX = GameConstants.CameraHeight / pMatrix.M11;
+            visibleHalfY = GameConstants.CameraHeight / pMatrix.M22;
+
+            // Set playfield to 2× the visible area so asteroids spawn well off-screen
+            // and the wrap boundary matches — preventing instant teleport on spawn.
+            GameConstants.PlayfieldSizeX = visibleHalfX * 2.0f;
+            GameConstants.PlayfieldSizeY = visibleHalfY * 2.0f;
+            GameConstants.PlayfieldSizeX_min = visibleHalfX;
+            GameConstants.PlayfieldSizeY_min = visibleHalfY;
 
             //Set the game information
             game = gme;
@@ -135,21 +152,15 @@ namespace Asteroids.Game_Types
             float yStart = 0.0f;
             if (random.Next(2) == 0)
             {
-                if (random.Next(2) == 0)
-                    xStart = (float)-GameConstants.PlayfieldSizeX;
-                else
-                    xStart = (float)GameConstants.PlayfieldSizeX;
-
-                yStart = (float)random.NextDouble() * GameConstants.PlayfieldSizeY;
+                // Spawn on left or right edge (fully off-screen)
+                xStart = random.Next(2) == 0 ? -GameConstants.PlayfieldSizeX : GameConstants.PlayfieldSizeX;
+                yStart = (float)(random.NextDouble() * 2 - 1) * GameConstants.PlayfieldSizeY;
             }
             else
             {
-                if (random.Next(2) == 0)
-                    yStart = (float)-GameConstants.PlayfieldSizeY;
-                else
-                    yStart = (float)GameConstants.PlayfieldSizeY;
-
-                xStart = (float)random.NextDouble() * GameConstants.PlayfieldSizeX;
+                // Spawn on top or bottom edge (fully off-screen)
+                yStart = random.Next(2) == 0 ? -GameConstants.PlayfieldSizeY : GameConstants.PlayfieldSizeY;
+                xStart = (float)(random.NextDouble() * 2 - 1) * GameConstants.PlayfieldSizeX;
             }
 
             asteroidList[i].position = new Vector3(xStart, yStart, 0.0f);
@@ -289,10 +300,10 @@ namespace Asteroids.Game_Types
                         //I think asteroid collision noise is a bit over the top
                         //maybe I need a better sound effect?
                         dist = 2000 / (float)Math.Sqrt((tmpPos.X * tmpPos.X) + (tmpPos.Y * tmpPos.Y));
-                        if (asteroidList[i].position.X < GameConstants.PlayfieldSizeX_min &&
-                            asteroidList[i].position.X > -GameConstants.PlayfieldSizeX_min &&
-                            asteroidList[i].position.Y < GameConstants.PlayfieldSizeY_min &&
-                            asteroidList[i].position.Y > -GameConstants.PlayfieldSizeY_min)
+                        if (asteroidList[i].position.X < visibleHalfX &&
+                            asteroidList[i].position.X > -visibleHalfX &&
+                            asteroidList[i].position.Y < visibleHalfY &&
+                            asteroidList[i].position.Y > -visibleHalfY)
                         {
                             particleEffect.UpdateSmoke(tmpPos);
                             if (dist < 1.0f)
@@ -553,10 +564,10 @@ namespace Asteroids.Game_Types
                         //I think asteroid collision noise is a bit over the top
                         //maybe I need a better sound effect?
                         dist = 2000 / (float)Math.Sqrt((tmpPos.X * tmpPos.X) + (tmpPos.Y * tmpPos.Y));
-                        if (asteroidList[i].position.X < GameConstants.PlayfieldSizeX_min &&
-                            asteroidList[i].position.X > -GameConstants.PlayfieldSizeX_min &&
-                            asteroidList[i].position.Y < GameConstants.PlayfieldSizeY_min &&
-                            asteroidList[i].position.Y > -GameConstants.PlayfieldSizeY_min)
+                        if (asteroidList[i].position.X < visibleHalfX &&
+                            asteroidList[i].position.X > -visibleHalfX &&
+                            asteroidList[i].position.Y < visibleHalfY &&
+                            asteroidList[i].position.Y > -visibleHalfY)
                         {
                             UpdateSmoke(tmpPos);
                             if (dist < 1.0f)
@@ -701,10 +712,10 @@ namespace Asteroids.Game_Types
                         //I think asteroid collision noise is a bit over the top
                         //maybe I need a better sound effect?
                         dist = 2000 / (float)Math.Sqrt((tmpPos.X * tmpPos.X) + (tmpPos.Y * tmpPos.Y));
-                        if (asteroidList[i].position.X < GameConstants.PlayfieldSizeX_min &&
-                            asteroidList[i].position.X > -GameConstants.PlayfieldSizeX_min &&
-                            asteroidList[i].position.Y < GameConstants.PlayfieldSizeY_min &&
-                            asteroidList[i].position.Y > -GameConstants.PlayfieldSizeY_min)
+                        if (asteroidList[i].position.X < visibleHalfX &&
+                            asteroidList[i].position.X > -visibleHalfX &&
+                            asteroidList[i].position.Y < visibleHalfY &&
+                            asteroidList[i].position.Y > -visibleHalfY)
                         {
                             UpdateSmoke(tmpPos);
                             if (dist < 1.0f)
