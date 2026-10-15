@@ -23,7 +23,7 @@ namespace Asteroids
 
         // ── Ship ──────────────────────────────────────────────────────────────
         public const float maxSpeed    = 5.0f;   // acceleration ramp ceiling in Ship.cs
-        public const float ShipMaxSpeed = 25.0f; // hard velocity cap (units/frame)
+        public const float ShipMaxSpeed = 50.0f; // hard velocity cap (units/frame)
         public const int   lives       = 3;
 
         // ── Asteroids ─────────────────────────────────────────────────────────
@@ -41,7 +41,7 @@ namespace Asteroids
         public const float AsteroidSpawnInterval   = 4f;    // seconds between spawn-check ticks
         public const float AsteroidSpeedAdjustment = 5.0f;
         public const float AsteroidSplitSeparation      = 200f;  // fragment spawn offset — small so they start inside the smoke cloud
-        public const float AsteroidSpawnImmunityDuration = 0.5f;  // seconds new fragments are immune to asteroid-asteroid collisions
+        public const float AsteroidSpawnImmunityDuration = 3.0f;  // seconds new fragments are immune to asteroid-asteroid collisions
 
         // Crack thresholds — hits before an asteroid splits (per size)
         public const int LargeCracksMin  = 3;
