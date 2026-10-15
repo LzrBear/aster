@@ -15,3 +15,8 @@ This includes:
 
 When adding a new feature, add its constants to the appropriate section in
 `GameConstants.cs` first, then reference them from your implementation.
+
+## Before checking in
+
+Always run `dotnet build` from `3D Model/3D Model/` and confirm it reports
+**0 errors** before committing. Do not commit code that does not build.
