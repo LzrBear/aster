@@ -309,9 +309,25 @@ namespace Asteroids
             spriteBatch.Draw(stars, screen, Color.White * 0.9f);
             spriteBatch.End();
 
-            // Animated star particles (always)
+            // ── Pass 1: 3D models (before particles) ──────────────────────────
+            // SetCamera on all particle systems so base.Draw renders them correctly.
             particleEffect.draw(viewMatrix, projectionMatrix);
 
+            bool gameVisible = stand.HasInitialized &&
+                (currentState == GameState.Playing  ||
+                 currentState == GameState.GameOver  ||
+                 currentState == GameState.EnterName);
+
+            if (gameVisible)
+            {
+                stand.particleEffect.draw(viewMatrix, projectionMatrix);
+                stand.drawGame(GraphicsDevice);
+            }
+
+            // ── Pass 2: particles rendered by DrawableGameComponents ───────────
+            base.Draw(gameTime);
+
+            // ── Pass 3: all 2D text — always on top of particles ──────────────
             switch (currentState)
             {
                 case GameState.MainMenu:
@@ -319,28 +335,16 @@ namespace Asteroids
                     break;
 
                 case GameState.Playing:
-                    if (stand.HasInitialized)
-                    {
-                        stand.particleEffect.draw(viewMatrix, projectionMatrix);
-                        stand.drawGame(GraphicsDevice);
-                    }
+                    if (stand.HasInitialized) stand.drawHUD();
                     break;
 
                 case GameState.GameOver:
-                    if (stand.HasInitialized)
-                    {
-                        stand.particleEffect.draw(viewMatrix, projectionMatrix);
-                        stand.drawGame(GraphicsDevice);
-                    }
+                    if (stand.HasInitialized) stand.drawHUD();
                     DrawGameOver();
                     break;
 
                 case GameState.EnterName:
-                    if (stand.HasInitialized)
-                    {
-                        stand.particleEffect.draw(viewMatrix, projectionMatrix);
-                        stand.drawGame(GraphicsDevice);
-                    }
+                    if (stand.HasInitialized) stand.drawHUD();
                     DrawEnterName();
                     break;
 
@@ -348,8 +352,6 @@ namespace Asteroids
                     DrawHighScores();
                     break;
             }
-
-            base.Draw(gameTime);
         }
 
         // ── Draw helpers ───────────────────────────────────────────────────────

@@ -683,12 +683,15 @@ namespace Asteroids.Game_Types
                 }
             }
 
-            //Draw the score / lives HUD using space-aware helper
+        }
+
+        // Drawn after particles so text always appears on top.
+        public void drawHUD()
+        {
             spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, UITransform());
             DrawSpHud("Score: " + score, scorePosition, Color.LightGreen);
             DrawSpHud("Lives: " + ship.lives, livesPosition, Color.LightGreen);
 
-            // Respawn prompt — shown while the ship is inactive and lives remain
             if (!ship.isActive && ship.lives > 0)
             {
                 DrawHudCentered("SHIP DESTROYED", 255f, Color.Red, 1.5f);
