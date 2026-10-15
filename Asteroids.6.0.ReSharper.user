@@ -1,0 +1,28 @@
+<Configuration>
+  <RecentFiles>
+    <RecentFiles>
+      <File id="A124715F-D524-483E-87F9-B9CD77A93ADD/f:game.cs" caret="348" fromTop="0" />
+      <File id="A124715F-D524-483E-87F9-B9CD77A93ADD/d:Particle/f:ParticleEmitter.cs" caret="733" fromTop="0" />
+      <File id="A124715F-D524-483E-87F9-B9CD77A93ADD/d:Particle/d:ParticleSystems/f:ExplosionParticleSystem.cs" caret="827" fromTop="0" />
+    </RecentFiles>
+    <RecentEdits />
+  </RecentFiles>
+  <NAntValidationSettings>
+    <NAntPath value="" />
+  </NAntValidationSettings>
+  <UnitTestRunner>
+    <Providers />
+  </UnitTestRunner>
+  <UnitTestRunnerNUnit>
+    <NUnitInstallDir IsNull="False">
+    </NUnitInstallDir>
+    <UseAddins>Never</UseAddins>
+  </UnitTestRunnerNUnit>
+  <SettingsComponent>
+    <string />
+    <integer />
+    <boolean>
+      <setting name="SolutionAnalysisEnabled">False</setting>
+    </boolean>
+  </SettingsComponent>
+</Configuration>

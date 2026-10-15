@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/asteroids/!svn/ver/3/3D%20Model/3D%20Model/Particle
+END
+ParticleEmitter.cs
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/asteroids/!svn/ver/3/3D%20Model/3D%20Model/Particle/ParticleEmitter.cs
+END
+Projectile.cs
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/asteroids/!svn/ver/3/3D%20Model/3D%20Model/Particle/Projectile.cs
+END
+ParticleVertex.cs
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/asteroids/!svn/ver/3/3D%20Model/3D%20Model/Particle/ParticleVertex.cs
+END
+ParticleSettings.cs
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/asteroids/!svn/ver/3/3D%20Model/3D%20Model/Particle/ParticleSettings.cs
+END
+ParticleSystem.cs
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/asteroids/!svn/ver/3/3D%20Model/3D%20Model/Particle/ParticleSystem.cs
+END
